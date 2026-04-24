@@ -6,14 +6,73 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A704C0A92F9A1F01009AC9F5 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A704C0A82F9A1F01009AC9F5 /* Quartz.framework */; };
+		A704C0B52F9A1F01009AC9F5 /* Exntension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A704C0A62F9A1F01009AC9F5 /* Exntension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A704C0B32F9A1F01009AC9F5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A704C08C2F9A1A4A009AC9F5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A704C0A52F9A1F01009AC9F5;
+			remoteInfo = Exntension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A704C0BA2F9A1F01009AC9F5 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A704C0B52F9A1F01009AC9F5 /* Exntension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		A704C0942F9A1A4A009AC9F5 /* UnityAssetsQuickLook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnityAssetsQuickLook.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A704C0A62F9A1F01009AC9F5 /* Exntension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Exntension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A704C0A82F9A1F01009AC9F5 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A704C0B62F9A1F01009AC9F5 /* Exceptions for "Exntension" folder in "Exntension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A704C0A52F9A1F01009AC9F5 /* Exntension */;
+		};
+		A704C0BC2F9A2069009AC9F5 /* Exceptions for "UnityAssetsQuickLook" folder in "UnityAssetsQuickLook" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A704C0932F9A1A4A009AC9F5 /* UnityAssetsQuickLook */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A704C0962F9A1A4A009AC9F5 /* UnityAssetsQuickLook */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A704C0BC2F9A2069009AC9F5 /* Exceptions for "UnityAssetsQuickLook" folder in "UnityAssetsQuickLook" target */,
+			);
 			path = UnityAssetsQuickLook;
+			sourceTree = "<group>";
+		};
+		A704C0AA2F9A1F01009AC9F5 /* Exntension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A704C0B62F9A1F01009AC9F5 /* Exceptions for "Exntension" folder in "Exntension" target */,
+			);
+			path = Exntension;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -26,6 +85,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A704C0A32F9A1F01009AC9F5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A704C0A92F9A1F01009AC9F5 /* Quartz.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -33,6 +100,8 @@
 			isa = PBXGroup;
 			children = (
 				A704C0962F9A1A4A009AC9F5 /* UnityAssetsQuickLook */,
+				A704C0AA2F9A1F01009AC9F5 /* Exntension */,
+				A704C0A72F9A1F01009AC9F5 /* Frameworks */,
 				A704C0952F9A1A4A009AC9F5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,8 +110,17 @@
 			isa = PBXGroup;
 			children = (
 				A704C0942F9A1A4A009AC9F5 /* UnityAssetsQuickLook.app */,
+				A704C0A62F9A1F01009AC9F5 /* Exntension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A704C0A72F9A1F01009AC9F5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A704C0A82F9A1F01009AC9F5 /* Quartz.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,10 +133,12 @@
 				A704C0902F9A1A4A009AC9F5 /* Sources */,
 				A704C0912F9A1A4A009AC9F5 /* Frameworks */,
 				A704C0922F9A1A4A009AC9F5 /* Resources */,
+				A704C0BA2F9A1F01009AC9F5 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				A704C0B42F9A1F01009AC9F5 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				A704C0962F9A1A4A009AC9F5 /* UnityAssetsQuickLook */,
@@ -69,6 +149,28 @@
 			productName = UnityAssetsQuickLook;
 			productReference = A704C0942F9A1A4A009AC9F5 /* UnityAssetsQuickLook.app */;
 			productType = "com.apple.product-type.application";
+		};
+		A704C0A52F9A1F01009AC9F5 /* Exntension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A704C0B72F9A1F01009AC9F5 /* Build configuration list for PBXNativeTarget "Exntension" */;
+			buildPhases = (
+				A704C0A22F9A1F01009AC9F5 /* Sources */,
+				A704C0A32F9A1F01009AC9F5 /* Frameworks */,
+				A704C0A42F9A1F01009AC9F5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A704C0AA2F9A1F01009AC9F5 /* Exntension */,
+			);
+			name = Exntension;
+			packageProductDependencies = (
+			);
+			productName = Exntension;
+			productReference = A704C0A62F9A1F01009AC9F5 /* Exntension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -81,6 +183,9 @@
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					A704C0932F9A1A4A009AC9F5 = {
+						CreatedOnToolsVersion = 26.4.1;
+					};
+					A704C0A52F9A1F01009AC9F5 = {
 						CreatedOnToolsVersion = 26.4.1;
 					};
 				};
@@ -100,12 +205,20 @@
 			projectRoot = "";
 			targets = (
 				A704C0932F9A1A4A009AC9F5 /* UnityAssetsQuickLook */,
+				A704C0A52F9A1F01009AC9F5 /* Exntension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		A704C0922F9A1A4A009AC9F5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A704C0A42F9A1F01009AC9F5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +235,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A704C0A22F9A1F01009AC9F5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A704C0B42F9A1F01009AC9F5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A704C0A52F9A1F01009AC9F5 /* Exntension */;
+			targetProxy = A704C0B32F9A1F01009AC9F5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A704C09D2F9A1A4A009AC9F5 /* Debug */ = {
@@ -256,14 +384,28 @@
 				DEVELOPMENT_TEAM = B3GRCQDM82;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = UnityAssetsQuickLook/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Unity Quick Look Extension";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.oces.UnityAssetsQuickLook;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -288,14 +430,28 @@
 				DEVELOPMENT_TEAM = B3GRCQDM82;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = UnityAssetsQuickLook/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Unity Quick Look Extension";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.oces.UnityAssetsQuickLook;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -303,6 +459,68 @@
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A704C0B82F9A1F01009AC9F5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B3GRCQDM82;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Exntension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Exntension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oces.UnityAssetsQuickLook.Exntension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A704C0B92F9A1F01009AC9F5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B3GRCQDM82;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Exntension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Exntension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oces.UnityAssetsQuickLook.Exntension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
@@ -326,6 +544,15 @@
 			buildConfigurations = (
 				A704C0A02F9A1A4A009AC9F5 /* Debug */,
 				A704C0A12F9A1A4A009AC9F5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A704C0B72F9A1F01009AC9F5 /* Build configuration list for PBXNativeTarget "Exntension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A704C0B82F9A1F01009AC9F5 /* Debug */,
+				A704C0B92F9A1F01009AC9F5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
