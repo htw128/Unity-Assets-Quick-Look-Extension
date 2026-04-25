@@ -9,7 +9,9 @@
 			<key>QLIsDataBasedPreview</key>
 			<false/>
 			<key>QLSupportedContentTypes</key>
-			<array/>
+			<array>
+				<string>com.unity3d.meta</string>
+			</array>
 			<key>QLSupportsSearchableItems</key>
 			<false/>
 		</dict>
@@ -28,28 +30,12 @@
         <string>Unity Meta File</string>
         <key>UTTypeConformsTo</key>
         <array>
-          <string>public.plain-text</string>
-        </array>
-        <key>UTTypeTagSpecification</key>
-        <dict>
-          <key>public.filename-extension</key>
-          <array><string>meta</string></array>
-        </dict>
-      </dict>
-      <!-- .unitypackage -->
-      <dict>
-        <key>UTTypeIdentifier</key>
-        <string>com.unity3d.package</string>
-        <key>UTTypeDescription</key>
-        <string>Unity Package</string>
-        <key>UTTypeConformsTo</key>
-        <array>
           <string>public.data</string>
         </array>
         <key>UTTypeTagSpecification</key>
         <dict>
           <key>public.filename-extension</key>
-          <array><string>unitypackage</string></array>
+          <array><string>meta</string></array>
         </dict>
       </dict>
     </array>
