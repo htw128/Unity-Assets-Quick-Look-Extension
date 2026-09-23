@@ -1,6 +1,6 @@
 //
 //  YAMLHighlighter.swift
-//  Exntension
+//  Extension
 //
 
 import AppKit

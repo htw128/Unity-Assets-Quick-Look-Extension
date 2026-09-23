@@ -1,6 +1,6 @@
 //
 //  PreviewViewController.swift
-//  Exntension
+//  Extension
 //
 //  Created by Oliver Wong on 2026/4/23.
 //
@@ -49,13 +49,15 @@ class PreviewViewController: NSViewController, QLPreviewingController {
     func preparePreviewOfFile(at url: URL) async throws {
         let ext = url.pathExtension.lowercased()
         
-        switch ext{
+        // 按扩展名路由（已转小写，所以大小写不敏感）
+        switch ext {
         case "unitypackage":
-            // try await showPackagePreview(for: url) TODO 沙箱里现在没法直接调用命令行工具，Apple Archive也不是很好用。这个功能先挂起
+            // .unitypackage：纯用户态解包，在内存里还原出目录树
+            try await showPackagePreview(for: url)
         default:
+            // 其余文本资产（.meta / .asset / .prefab …）走语法高亮预览
             try await showYAMLPreview(for: url)
         }
-        // 读取文件扩展名并转为小写，以便不区分大小写地匹配
         
     }
 

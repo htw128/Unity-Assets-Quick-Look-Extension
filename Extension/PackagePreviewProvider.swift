@@ -1,6 +1,6 @@
 //
 //  PackagePreviewProvider.swift
-//  Exntension
+//  Extension
 //
 
 import Cocoa

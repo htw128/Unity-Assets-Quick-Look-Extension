@@ -17,8 +17,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A704C0A52F9A1F01009AC9F5"
-               BuildableName = "Exntension.appex"
-               BlueprintName = "Exntension"
+               BuildableName = "Extension.appex"
+               BlueprintName = "Extension"
                ReferencedContainer = "container:UnityAssetsQuickLook.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

@@ -11,6 +11,7 @@
 			<key>QLSupportedContentTypes</key>
 			<array>
 				<string>com.unity3d.meta</string>
+				<string>com.unity3d.package</string>
 			</array>
 			<key>QLSupportsSearchableItems</key>
 			<false/>
@@ -36,6 +37,22 @@
         <dict>
           <key>public.filename-extension</key>
           <array><string>meta</string></array>
+        </dict>
+      </dict>
+      <!-- .unitypackage 文件（注意扩展名 tag 是 unitypackage，不是 package） -->
+      <dict>
+        <key>UTTypeIdentifier</key>
+        <string>com.unity3d.package</string>
+        <key>UTTypeDescription</key>
+        <string>Unity Package</string>
+        <key>UTTypeConformsTo</key>
+        <array>
+          <string>public.data</string>
+        </array>
+        <key>UTTypeTagSpecification</key>
+        <dict>
+          <key>public.filename-extension</key>
+          <array><string>unitypackage</string></array>
         </dict>
       </dict>
     </array>

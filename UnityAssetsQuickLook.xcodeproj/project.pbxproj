@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A704C0A92F9A1F01009AC9F5 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A704C0A82F9A1F01009AC9F5 /* Quartz.framework */; };
-		A704C0B52F9A1F01009AC9F5 /* Exntension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A704C0A62F9A1F01009AC9F5 /* Exntension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A704C0B52F9A1F01009AC9F5 /* Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A704C0A62F9A1F01009AC9F5 /* Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -17,7 +17,7 @@
 			containerPortal = A704C08C2F9A1A4A009AC9F5 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A704C0A52F9A1F01009AC9F5;
-			remoteInfo = Exntension;
+			remoteInfo = Extension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -28,7 +28,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				A704C0B52F9A1F01009AC9F5 /* Exntension.appex in Embed Foundation Extensions */,
+				A704C0B52F9A1F01009AC9F5 /* Extension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -37,17 +37,17 @@
 
 /* Begin PBXFileReference section */
 		A704C0942F9A1A4A009AC9F5 /* UnityAssetsQuickLook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnityAssetsQuickLook.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A704C0A62F9A1F01009AC9F5 /* Exntension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Exntension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A704C0A62F9A1F01009AC9F5 /* Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Extension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A704C0A82F9A1F01009AC9F5 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		A704C0B62F9A1F01009AC9F5 /* Exceptions for "Exntension" folder in "Exntension" target */ = {
+		A704C0B62F9A1F01009AC9F5 /* Exceptions for "Extension" folder in "Extension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = A704C0A52F9A1F01009AC9F5 /* Exntension */;
+			target = A704C0A52F9A1F01009AC9F5 /* Extension */;
 		};
 		A704C0BC2F9A2069009AC9F5 /* Exceptions for "UnityAssetsQuickLook" folder in "UnityAssetsQuickLook" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -67,12 +67,12 @@
 			path = UnityAssetsQuickLook;
 			sourceTree = "<group>";
 		};
-		A704C0AA2F9A1F01009AC9F5 /* Exntension */ = {
+		A704C0AA2F9A1F01009AC9F5 /* Extension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				A704C0B62F9A1F01009AC9F5 /* Exceptions for "Exntension" folder in "Exntension" target */,
+				A704C0B62F9A1F01009AC9F5 /* Exceptions for "Extension" folder in "Extension" target */,
 			);
-			path = Exntension;
+			path = Extension;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -100,7 +100,7 @@
 			isa = PBXGroup;
 			children = (
 				A704C0962F9A1A4A009AC9F5 /* UnityAssetsQuickLook */,
-				A704C0AA2F9A1F01009AC9F5 /* Exntension */,
+				A704C0AA2F9A1F01009AC9F5 /* Extension */,
 				A704C0A72F9A1F01009AC9F5 /* Frameworks */,
 				A704C0952F9A1A4A009AC9F5 /* Products */,
 			);
@@ -110,7 +110,7 @@
 			isa = PBXGroup;
 			children = (
 				A704C0942F9A1A4A009AC9F5 /* UnityAssetsQuickLook.app */,
-				A704C0A62F9A1F01009AC9F5 /* Exntension.appex */,
+				A704C0A62F9A1F01009AC9F5 /* Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -150,9 +150,9 @@
 			productReference = A704C0942F9A1A4A009AC9F5 /* UnityAssetsQuickLook.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A704C0A52F9A1F01009AC9F5 /* Exntension */ = {
+		A704C0A52F9A1F01009AC9F5 /* Extension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A704C0B72F9A1F01009AC9F5 /* Build configuration list for PBXNativeTarget "Exntension" */;
+			buildConfigurationList = A704C0B72F9A1F01009AC9F5 /* Build configuration list for PBXNativeTarget "Extension" */;
 			buildPhases = (
 				A704C0A22F9A1F01009AC9F5 /* Sources */,
 				A704C0A32F9A1F01009AC9F5 /* Frameworks */,
@@ -163,13 +163,13 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				A704C0AA2F9A1F01009AC9F5 /* Exntension */,
+				A704C0AA2F9A1F01009AC9F5 /* Extension */,
 			);
-			name = Exntension;
+			name = Extension;
 			packageProductDependencies = (
 			);
-			productName = Exntension;
-			productReference = A704C0A62F9A1F01009AC9F5 /* Exntension.appex */;
+			productName = Extension;
+			productReference = A704C0A62F9A1F01009AC9F5 /* Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -205,7 +205,7 @@
 			projectRoot = "";
 			targets = (
 				A704C0932F9A1A4A009AC9F5 /* UnityAssetsQuickLook */,
-				A704C0A52F9A1F01009AC9F5 /* Exntension */,
+				A704C0A52F9A1F01009AC9F5 /* Extension */,
 			);
 		};
 /* End PBXProject section */
@@ -247,7 +247,7 @@
 /* Begin PBXTargetDependency section */
 		A704C0B42F9A1F01009AC9F5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A704C0A52F9A1F01009AC9F5 /* Exntension */;
+			target = A704C0A52F9A1F01009AC9F5 /* Extension */;
 			targetProxy = A704C0B32F9A1F01009AC9F5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -468,6 +468,7 @@
 		A704C0B82F9A1F01009AC9F5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B3GRCQDM82;
@@ -475,8 +476,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Exntension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Exntension;
+				INFOPLIST_FILE = Extension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Extension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -485,7 +486,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.oces.UnityAssetsQuickLook.Exntension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oces.UnityAssetsQuickLook.Extension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -499,6 +500,7 @@
 		A704C0B92F9A1F01009AC9F5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B3GRCQDM82;
@@ -506,8 +508,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Exntension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Exntension;
+				INFOPLIST_FILE = Extension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Extension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -516,7 +518,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.oces.UnityAssetsQuickLook.Exntension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oces.UnityAssetsQuickLook.Extension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -548,7 +550,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A704C0B72F9A1F01009AC9F5 /* Build configuration list for PBXNativeTarget "Exntension" */ = {
+		A704C0B72F9A1F01009AC9F5 /* Build configuration list for PBXNativeTarget "Extension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A704C0B82F9A1F01009AC9F5 /* Debug */,
