@@ -80,56 +80,15 @@ struct YAMLPreviewProvider {
     @MainActor
     private func makeBinaryNoticeView(fileName: String) -> NSView {
 
-        // MARK: 图标
-
-        let iconView = NSImageView()
-        if let icon = NSImage(systemSymbolName: "document.badge.ellipsis",
-                              accessibilityDescription: "Binary file") {
-            let config = NSImage.SymbolConfiguration(pointSize: 48, weight: .thin)
-            iconView.image = icon.withSymbolConfiguration(config)
-        }
-        iconView.contentTintColor = .tertiaryLabelColor
-
-        if #available(macOS 26, *) {
-            iconView.addSymbolEffect(.drawOn.byLayer, options: .nonRepeating)
-        }
-
-        // MARK: 文字标题
-
-        let titleLabel = NSTextField(labelWithString: "无法预览此文件")
-        titleLabel.font = .systemFont(ofSize: 15, weight: .medium)
-        titleLabel.textColor = .secondaryLabelColor
-        titleLabel.alignment = .center
-
-        // MARK: 文字说明
-
-        let bodyLabel = NSTextField(wrappingLabelWithString:
-            "\(fileName) 使用 Unity Binary 格式存储，不支持文本预览。\n\n" +
-            "如需查看内容，请在 Unity Editor 中打开项目，\n" +
-            "或在 Project Settings → Editor → Asset Serialization\n" +
-            "中将模式改为 Force Text。"
+        PreviewNotice.make(symbolName: "document.badge.ellipsis",
+                           symbolDescription: "Binary File",
+                           title: "无法预览此文件",
+                           body: """
+                           \(fileName) 使用 Unity Binary 格式存储，不支持文本预览。
+                           如需查看内容，请在 Unity Editor 中打开项目，
+                           或在 Project Settings → Editor → Asset Serialization
+                           中将模式改为 Force Text。
+                           """
         )
-        bodyLabel.font = .systemFont(ofSize: 12)
-        bodyLabel.textColor = .tertiaryLabelColor
-        bodyLabel.alignment = .center
-
-        // MARK: 布局
-
-        let stack = NSStackView(views: [iconView, titleLabel, bodyLabel])
-        stack.orientation = .vertical
-        stack.alignment   = .centerX
-        stack.spacing     = 12
-
-        let container = NSView()
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        container.addSubview(stack)
-
-        NSLayoutConstraint.activate([
-            stack.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-            stack.centerYAnchor.constraint(equalTo: container.centerYAnchor),
-            stack.widthAnchor.constraint(lessThanOrEqualToConstant: 320),
-        ])
-
-        return container
     }
 }

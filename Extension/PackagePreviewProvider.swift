@@ -12,13 +12,23 @@ struct PackagePreviewProvider {
     /// 读取 .unitypackage，返回目录树预览视图。
     func makeView(for url: URL) async throws -> NSView {
         let reader = UnityPackageReader()
-
-        // read(from:) 内部会解压归档，是耗时操作，放在 async 上下文里执行
-        let root = try reader.read(from: url)
-
-        // 构建 UI 必须在主线程
-        return await MainActor.run {
-            PackagePreviewContainerView(root: root, fileName: url.lastPathComponent)
+        do {
+            // read(from:) 内部会解压归档，是耗时操作，放在 async 上下文里执行
+            let root = try reader.read(from: url)
+            
+            // 构建 UI 必须在主线程
+            return await MainActor.run {
+                PackagePreviewContainerView(root: root, fileName: url.lastPathComponent)
+            }
+        } catch {
+            // 抛错的话 Quick Look 只会显示它自己的通用兜底页，看不到我们的说明，
+            // 所以这里改成把错误渲染成视图
+            let message = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            return await MainActor.run {
+                PreviewNotice.make(symbolName: "exclamationmark.triangle",
+                                   symbolDescription: "Exclamation mark in a triangle",
+                                   title: "无法预览此文件", body: "\(url.lastPathComponent) \n\n \(message)")
+            }
         }
     }
 }
@@ -298,14 +308,14 @@ private final class PackageOutlineDataSource: NSObject,
         case "unity":                       return "square.3.layers.3d" // 场景
         case "asset":                       return "archivebox"         // 通用资产
         case "png", "jpg", "jpeg",
-             "tga", "bmp", "exr", "hdr":   return "photo"              // 贴图
+             "tga", "bmp", "exr", "hdr":    return "photo"              // 贴图
         case "mp3", "wav", "ogg", "aiff":   return "waveform"           // 音频
         case "fbx", "obj", "dae":           return "rotate.3d"          // 模型
         case "anim":                        return "figure.walk"        // 动画
         case "controller":                  return "point.3.connected.trianglepath.dotted" // 动画控制器
         case "ttf", "otf":                  return "textformat"         // 字体
         case "json", "xml", "yaml",
-             "yml", "txt", "md", "meta":            return "text.page"      // 文本
+             "yml", "txt", "md", "meta":    return "text.page"      // 文本
         case "dll":                         return "puzzlepiece.extension"        // 插件
         default:                            return "questionmark.text.page"                // 未知类型
         }
