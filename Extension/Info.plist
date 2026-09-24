@@ -10,6 +10,7 @@
 			<false/>
 			<key>QLSupportedContentTypes</key>
 			<array>
+				<string>com.unity3d.unity</string>
 				<string>com.unity3d.meta</string>
 				<string>com.unity3d.package</string>
 			</array>
@@ -21,40 +22,59 @@
 		<key>NSExtensionPrincipalClass</key>
 		<string>$(PRODUCT_MODULE_NAME).PreviewViewController</string>
 	</dict>
-    <key>UTImportedTypeDeclarations</key>
-    <array>
-      <!-- .meta 文件 -->
-      <dict>
-        <key>UTTypeIdentifier</key>
-        <string>com.unity3d.meta</string>
-        <key>UTTypeDescription</key>
-        <string>Unity Meta File</string>
-        <key>UTTypeConformsTo</key>
-        <array>
-          <string>public.data</string>
-        </array>
-        <key>UTTypeTagSpecification</key>
-        <dict>
-          <key>public.filename-extension</key>
-          <array><string>meta</string></array>
-        </dict>
-      </dict>
-      <!-- .unitypackage 文件（注意扩展名 tag 是 unitypackage，不是 package） -->
-      <dict>
-        <key>UTTypeIdentifier</key>
-        <string>com.unity3d.package</string>
-        <key>UTTypeDescription</key>
-        <string>Unity Package</string>
-        <key>UTTypeConformsTo</key>
-        <array>
-          <string>public.data</string>
-        </array>
-        <key>UTTypeTagSpecification</key>
-        <dict>
-          <key>public.filename-extension</key>
-          <array><string>unitypackage</string></array>
-        </dict>
-      </dict>
-    </array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeDescription</key>
+			<string>Unity Scene File</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity3d.unity</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>unity</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity3d.meta</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Meta File</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>meta</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity3d.package</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Package</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>unitypackage</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 </dict>
 </plist>
