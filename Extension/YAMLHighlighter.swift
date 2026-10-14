@@ -32,6 +32,7 @@ struct YAMLHighlighter {
         let tag: NSColor
         let anchor: NSColor
         let seq: NSColor
+        let url: NSColor
     }
 
     private static let light = Colors(
@@ -48,7 +49,8 @@ struct YAMLHighlighter {
         bool:                  NSColor(red: 0.00, green: 0.00, blue: 1.00, alpha: 1),
         tag:                   NSColor(red: 0.47, green: 0.37, blue: 0.15, alpha: 1),
         anchor:                NSColor(red: 0.15, green: 0.50, blue: 0.60, alpha: 1),
-        seq:                   NSColor(red: 0.69, green: 0.00, blue: 0.86, alpha: 1)
+        seq:                   NSColor(red: 0.69, green: 0.00, blue: 0.86, alpha: 1),
+        url:                   NSColor(red: 0.10, green: 0.48, blue: 0.55, alpha: 1)
     )
 
     private static let dark = Colors(
@@ -65,8 +67,17 @@ struct YAMLHighlighter {
         bool:                  NSColor(red: 0.34, green: 0.61, blue: 0.84, alpha: 1),
         tag:                   NSColor(red: 0.86, green: 0.86, blue: 0.77, alpha: 1),
         anchor:                NSColor(red: 0.31, green: 0.81, blue: 0.69, alpha: 1),
-        seq:                   NSColor(red: 0.77, green: 0.50, blue: 0.75, alpha: 1)
+        seq:                   NSColor(red: 0.77, green: 0.50, blue: 0.75, alpha: 1),
+        url:                   NSColor(red: 0.40, green: 0.78, blue: 0.85, alpha: 1)
     )
+
+    // MARK: - 词法正则
+
+    /// URL / mailto / IPv4
+    private static let urlPattern = #/^(?:(?:https?|ftp)://\S+|mailto:[^\s:]+@\S+|\d{1,3}(?:\.\d{1,3}){3}(?::\d+)?(?:\/\S*)?)/#
+
+    /// YAML 1.2 core schema 的标量数字（含 0b/0o/0x、`.5`、`1.`、指数、`.inf`/`.nan`、正负号）
+    private static let numberPattern = #"^[-+]?(0[bB][01_]+|0[oO][0-7_]+|0[xX][0-9a-fA-F_]+|[0-9][0-9_]*(\.[0-9_]*)?([eE][-+]?[0-9]+)?|\.[0-9_]+([eE][-+]?[0-9]+)?|\.(?:inf|Inf|INF|nan|NaN|NAN))$"#
 
     // MARK: - 公开接口
 
@@ -196,19 +207,57 @@ struct YAMLHighlighter {
         }
 
         // 键: 值
-        if let match = trimmed.firstMatch(of: #/^([^:\n]+?):(\s*)(.*)$/#) {
-            let key = String(match.1)
-            let sep = ":" + String(match.2)
-            let val = String(match.3)
-
-            result.append(key.attr(base, color: c.key))
-            result.append(NSAttributedString(string: sep, attributes: base))
-            result.append(highlightValue(val, colors: c, base: base))
+        if let split = splitKeyValue(trimmed) {
+            result.append(split.key.attr(base, color: c.key))
+            result.append(NSAttributedString(string: split.separator, attributes: base))
+            result.append(highlightValue(split.value, colors: c, base: base))
         } else {
             result.append(highlightValue(trimmed, colors: c, base: base))
         }
 
         return result
+    }
+
+    /// 找第一个「不在引号内」的冒号作为键值分隔符。
+    /// - 跳过 `"a:b"` 这类引号内的冒号
+    /// - `://` 不当作分隔符（避免把裸 URL 的 scheme 当成键）
+    /// - 返回 nil 表示这一行不是 `key: value`
+    private func splitKeyValue(_ line: String) -> (key: String, separator: String, value: String)? {
+        var inSingle = false
+        var inDouble = false
+        var escaped = false
+        var colon: String.Index?
+
+        var i = line.startIndex
+        loop: while i < line.endIndex {
+            let ch = line[i]
+            if escaped {
+                escaped = false
+            } else if ch == "\\" && inDouble {
+                escaped = true
+            } else if ch == "'" && !inDouble {
+                inSingle.toggle()
+            } else if ch == "\"" && !inSingle {
+                inDouble.toggle()
+            } else if ch == ":" && !inSingle && !inDouble {
+                colon = i
+                break loop
+            }
+            i = line.index(after: i)
+        }
+
+        guard let colon else { return nil }
+        let afterColon = line.index(after: colon)
+        if afterColon < line.endIndex, line[afterColon] == "/" { return nil }  // ://
+
+        let key = String(line[line.startIndex..<colon])
+        guard !key.isEmpty else { return nil }
+
+        var valueStart = afterColon
+        while valueStart < line.endIndex, line[valueStart] == " " || line[valueStart] == "\t" {
+            valueStart = line.index(after: valueStart)
+        }
+        return (key, String(line[colon..<valueStart]), String(line[valueStart...]))
     }
 
     // MARK: - 值高亮
@@ -225,13 +274,17 @@ struct YAMLHighlighter {
         if let val, !val.isEmpty {
             let lower = val.lowercased()
 
-            if ["true", "false", "null", "~", "yes", "no", "on", "off"].contains(lower) {
+            if let url = val.firstMatch(of: Self.urlPattern) {
+                // 值以 URL 开头：URL 部分单独上色，其余原样
+                result.append(String(url.output).attr(base, color: c.url))
+                result.append(NSAttributedString(string: String(val[url.range.upperBound...]), attributes: base))
+            } else if ["true", "false", "null", "~", "yes", "no", "on", "off"].contains(lower) {
                 result.append(val.attr(base, color: c.bool))
-            } else if val.range(of: #"^-?(0x[0-9a-fA-F]+|[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?)$"#, options: .regularExpression) != nil {
+            } else if val.range(of: Self.numberPattern, options: .regularExpression) != nil {
                 result.append(val.attr(base, color: c.number))
             } else if val.hasPrefix("\"") || val.hasPrefix("'") {
                 result.append(val.attr(base, color: c.string))
-            } else if val.hasPrefix("{") {
+            } else if val.hasPrefix("{") || val.hasPrefix("[") {
                 result.append(highlightFlowMapping(val, colors: c, base: base))
             } else if val.hasPrefix("&") || val.hasPrefix("*") {
                 result.append(val.attr(base, color: c.anchor))
@@ -250,14 +303,14 @@ struct YAMLHighlighter {
         return result
     }
 
-    // MARK: - 流式映射 {fileID: 123}
+    // MARK: - 流式集合（映射 {…} / 序列 […]）
 
     private func highlightFlowMapping(_ text: String, colors c: Colors, base: [NSAttributedString.Key: Any]) -> NSAttributedString {
         let result = NSMutableAttributedString()
         var lastEnd = text.startIndex
 
         // 高亮键名
-        for m in text.matches(of: #/([a-zA-Z_][a-zA-Z0-9_]*)(\s*:)/#) {
+        for m in text.matches(of: #/([\w$.\-]+?)(\s*:)/#) {
             let range = m.range
             if range.lowerBound > lastEnd {
                 let middle = String(text[lastEnd..<range.lowerBound])
@@ -303,9 +356,18 @@ struct YAMLHighlighter {
 
         var inSingle = false
         var inDouble = false
+        var escaped = false
         let chars = Array(value)
 
         for i in 0..<(chars.count - 1) {
+            if escaped {
+                escaped = false
+                continue
+            }
+            if chars[i] == "\\" && inDouble {
+                escaped = true
+                continue
+            }
             if chars[i] == "'" && !inDouble { inSingle.toggle(); continue }
             if chars[i] == "\"" && !inSingle { inDouble.toggle(); continue }
 
