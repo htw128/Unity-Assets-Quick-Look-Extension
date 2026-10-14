@@ -21,7 +21,6 @@ struct YAMLHighlighter {
         let background: NSColor
         let text: NSColor
         let lineNumberText: NSColor
-        let lineNumberBackground: NSColor
         let comment: NSColor
         let docMark: NSColor
         let directive: NSColor
@@ -39,7 +38,6 @@ struct YAMLHighlighter {
         background:            .white,
         text:                  NSColor(red: 0.10, green: 0.10, blue: 0.10, alpha: 1),
         lineNumberText:        NSColor(white: 0.73, alpha: 1),
-        lineNumberBackground:  NSColor(white: 0.97, alpha: 1),
         comment:               NSColor(red: 0.42, green: 0.60, blue: 0.33, alpha: 1),
         docMark:               NSColor(red: 0.69, green: 0.00, blue: 0.86, alpha: 1),
         directive:             NSColor(red: 0.69, green: 0.00, blue: 0.86, alpha: 1),
@@ -57,7 +55,6 @@ struct YAMLHighlighter {
         background:            NSColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1),
         text:                  NSColor(red: 0.83, green: 0.83, blue: 0.83, alpha: 1),
         lineNumberText:        NSColor(white: 0.31, alpha: 1),
-        lineNumberBackground:  NSColor(white: 0.15, alpha: 1),
         comment:               NSColor(red: 0.42, green: 0.60, blue: 0.33, alpha: 1),
         docMark:               NSColor(red: 0.77, green: 0.50, blue: 0.75, alpha: 1),
         directive:             NSColor(red: 0.77, green: 0.50, blue: 0.75, alpha: 1),
@@ -80,6 +77,11 @@ struct YAMLHighlighter {
     private static let numberPattern = #"^[-+]?(0[bB][01_]+|0[oO][0-7_]+|0[xX][0-9a-fA-F_]+|[0-9][0-9_]*(\.[0-9_]*)?([eE][-+]?[0-9]+)?|\.[0-9_]+([eE][-+]?[0-9]+)?|\.(?:inf|Inf|INF|nan|NaN|NAN))$"#
 
     // MARK: - 公开接口
+    
+    static func background(for appearance: NSAppearance) -> NSColor {
+        let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        return (isDark ? dark : light).background
+    }
 
     /// 生成带语法高亮的 NSAttributedString。
     func generateAttributedString(for text: String, appearance: NSAppearance) -> NSAttributedString {
@@ -87,7 +89,7 @@ struct YAMLHighlighter {
         let c: Colors = isDark ? Self.dark : Self.light
 
         let lineSpacing = NSMutableParagraphStyle()
-        lineSpacing.lineHeightMultiple = 1.7
+        lineSpacing.lineHeightMultiple = 1.1
 
         let base: [NSAttributedString.Key: Any] = [
             .font:            NSFont.monospacedSystemFont(ofSize: 13, weight: .regular),
@@ -103,11 +105,10 @@ struct YAMLHighlighter {
 
             // 行号
             let numStyle = NSMutableParagraphStyle()
-            numStyle.lineHeightMultiple = 1.7
+            numStyle.lineHeightMultiple = 1.1
             let lineNum = NSAttributedString(string: String(format: "%4d  ", index + 1), attributes: [
-                .font:            NSFont.monospacedSystemFont(ofSize: 11, weight: .regular),
+                .font:            NSFont.monospacedSystemFont(ofSize: 13, weight: .regular),
                 .foregroundColor: c.lineNumberText,
-                .backgroundColor: c.lineNumberBackground,
                 .paragraphStyle:  numStyle,
             ])
             result.append(lineNum)

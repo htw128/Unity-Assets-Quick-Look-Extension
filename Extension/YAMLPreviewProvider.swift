@@ -39,10 +39,11 @@ struct YAMLPreviewProvider {
     /// 创建带语法高亮的 NSScrollView + NSTextView。
     @MainActor
     private func makeTextPreviewView(for text: String) -> NSView {
+        let appearance = NSApp.effectiveAppearance
         let highlighter = YAMLHighlighter()
         let attributed = highlighter.generateAttributedString(
             for: text,
-            appearance: NSApp.effectiveAppearance
+            appearance: appearance
         )
 
         // NSScrollView 容器
@@ -50,7 +51,8 @@ struct YAMLPreviewProvider {
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
         scrollView.autohidesScrollers = true
-        scrollView.drawsBackground = false
+        scrollView.drawsBackground = true
+        scrollView.backgroundColor = YAMLHighlighter.background(for:appearance)
         scrollView.borderType = .noBorder
         scrollView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -62,7 +64,7 @@ struct YAMLPreviewProvider {
         textView.isHorizontallyResizable = false
         textView.autoresizingMask = [.width]
         textView.drawsBackground = false
-        textView.textContainerInset = NSSize(width: 16, height: 12)
+        textView.textContainerInset = NSSize(width: 16, height: 0)
 
         textView.textContainer?.widthTracksTextView = true
         textView.textContainer?.containerSize = NSSize(width: 0, height: CGFloat.greatestFiniteMagnitude)
