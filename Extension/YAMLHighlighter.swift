@@ -71,7 +71,22 @@ struct YAMLHighlighter {
     private static let urlPattern = #/^https?:\/\/\S+/#
 
     /// YAML 1.2 core schema 的标量数字（含 0b/0x、`.5`、指数、正负号）
-    private static let numberPattern = #"^[-+]?(0[bB][01]+|0[xX][0-9a-fA-F]+|[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?|\.[0-9]+([eE][-+]?[0-9]+)?)$"#
+    private static let numberCore = #"[-+]?(0[bB][01]+|0[xX][0-9a-fA-F]+|[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?|\.[0-9]+([eE][-+]?[0-9]+)?)"#
+
+    /// 整串匹配用（标量路径）
+    private static let numberPattern = "^" + numberCore + "$"
+
+    /// 碎块扫描用（flow 路径）
+    private static let flowNumberRegex = try! Regex(#"\b(?:"# + numberCore + #")\b"#)
+
+    /// 该值挂的键是否以 guid 结尾（GUID 一律按字符串处理，不做数字上色）
+    private static func isGUIDKey(_ key: String?) -> Bool {
+        key?.trimmingCharacters(in: .whitespaces).lowercased().hasSuffix("guid") ?? false
+    }
+
+    private static func isNumber(_ scalar: String, owningKey: String?) -> Bool {
+        !isGUIDKey(owningKey) && scalar.range(of: numberPattern, options: .regularExpression) != nil
+    }
 
     // MARK: - 公开接口
     
@@ -192,9 +207,9 @@ struct YAMLHighlighter {
         if let split = splitKeyValue(trimmed) {
             result.append(split.key.attr(base, color: c.key))
             result.append(NSAttributedString(string: split.separator, attributes: base))
-            result.append(highlightValue(split.value, colors: c, base: base))
+            result.append(highlightValue(split.value, owningKey: split.key, colors: c, base: base))
         } else {
-            result.append(highlightValue(trimmed, colors: c, base: base))
+            result.append(highlightValue(trimmed, owningKey: nil, colors: c, base: base))
         }
 
         return result
@@ -244,7 +259,7 @@ struct YAMLHighlighter {
 
     // MARK: - 值高亮
 
-    private func highlightValue(_ val: String, colors c: Colors, base: [NSAttributedString.Key: Any]) -> NSAttributedString {
+    private func highlightValue(_ val: String, owningKey: String?, colors c: Colors, base: [NSAttributedString.Key: Any]) -> NSAttributedString {
         guard !val.isEmpty else { return NSAttributedString(string: "", attributes: base) }
 
         let result = NSMutableAttributedString()
@@ -257,7 +272,7 @@ struct YAMLHighlighter {
             result.append(NSAttributedString(string: String(val[url.range.upperBound...]), attributes: base))
         } else if ["true", "false", "yes", "no", "on", "off"].contains(lower) {
             result.append(val.attr(base, color: c.bool))
-        } else if val.range(of: Self.numberPattern, options: .regularExpression) != nil {
+        } else if Self.isNumber(val, owningKey: owningKey) {
             result.append(val.attr(base, color: c.number))
         } else if val.hasPrefix("\"") || val.hasPrefix("'") {
             result.append(val.attr(base, color: c.string))
@@ -275,32 +290,36 @@ struct YAMLHighlighter {
     private func highlightFlowMapping(_ text: String, colors c: Colors, base: [NSAttributedString.Key: Any]) -> NSAttributedString {
         let result = NSMutableAttributedString()
         var lastEnd = text.startIndex
+        var lastKey: String? = nil
 
         // 高亮键名
         for m in text.matches(of: #/([\w$.\-]+?)(\s*:)/#) {
             let range = m.range
             if range.lowerBound > lastEnd {
                 let middle = String(text[lastEnd..<range.lowerBound])
-                result.append(highlightFlowNumbers(middle, colors: c, base: base))
+                result.append(highlightFlowNumbers(middle, owningKey: lastKey, colors: c, base: base))
             }
             result.append(NSAttributedString(string: String(m.1), attributes: withColor(base, c.key)))
             result.append(NSAttributedString(string: String(m.2), attributes: base))
             lastEnd = range.upperBound
+            lastKey = String(m.1)
         }
 
         if lastEnd < text.endIndex {
             let rest = String(text[lastEnd...])
-            result.append(highlightFlowNumbers(rest, colors: c, base: base))
+            result.append(highlightFlowNumbers(rest, owningKey: lastKey, colors: c, base: base))
         }
 
         return result.length > 0 ? result : NSAttributedString(string: text, attributes: base)
     }
 
-    private func highlightFlowNumbers(_ text: String, colors c: Colors, base: [NSAttributedString.Key: Any]) -> NSAttributedString {
+    private func highlightFlowNumbers(_ text: String, owningKey: String?, colors c: Colors, base: [NSAttributedString.Key: Any]) -> NSAttributedString {
+        guard !Self.isGUIDKey(owningKey) else { return NSAttributedString(string: text, attributes: base) }
+
         let result = NSMutableAttributedString()
         var lastEnd = text.startIndex
 
-        for m in text.matches(of: #/\b(-?(?:0x[0-9a-fA-F]+|[0-9]+(?:\.[0-9]+)?|\.[0-9]+))\b/#) {
+        for m in text.matches(of: Self.flowNumberRegex) {
             let range = m.range
             if range.lowerBound > lastEnd {
                 result.append(NSAttributedString(string: String(text[lastEnd..<range.lowerBound]), attributes: base))
