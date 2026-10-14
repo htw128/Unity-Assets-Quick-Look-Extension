@@ -21,7 +21,6 @@ struct YAMLHighlighter {
         let background: NSColor
         let text: NSColor
         let lineNumberText: NSColor
-        let comment: NSColor
         let docMark: NSColor
         let directive: NSColor
         let key: NSColor
@@ -38,7 +37,6 @@ struct YAMLHighlighter {
         background:            .white,
         text:                  NSColor(red: 0.10, green: 0.10, blue: 0.10, alpha: 1),
         lineNumberText:        NSColor(white: 0.73, alpha: 1),
-        comment:               NSColor(red: 0.42, green: 0.60, blue: 0.33, alpha: 1),
         docMark:               NSColor(red: 0.69, green: 0.00, blue: 0.86, alpha: 1),
         directive:             NSColor(red: 0.69, green: 0.00, blue: 0.86, alpha: 1),
         key:                   NSColor(red: 0.02, green: 0.32, blue: 0.65, alpha: 1),
@@ -55,7 +53,6 @@ struct YAMLHighlighter {
         background:            NSColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1),
         text:                  NSColor(red: 0.83, green: 0.83, blue: 0.83, alpha: 1),
         lineNumberText:        NSColor(white: 0.31, alpha: 1),
-        comment:               NSColor(red: 0.42, green: 0.60, blue: 0.33, alpha: 1),
         docMark:               NSColor(red: 0.77, green: 0.50, blue: 0.75, alpha: 1),
         directive:             NSColor(red: 0.77, green: 0.50, blue: 0.75, alpha: 1),
         key:                   NSColor(red: 0.61, green: 0.86, blue: 1.00, alpha: 1),
@@ -124,12 +121,7 @@ struct YAMLHighlighter {
     private func highlightLine(_ line: String, colors c: Colors, base: [NSAttributedString.Key: Any]) -> NSAttributedString {
         let trimmed = line.trimmingCharacters(in: .whitespaces)
 
-        // 1. 注释行
-        if trimmed.hasPrefix("#") {
-            return line.attr(base, color: c.comment)
-        }
-
-        // 2. 文档标记 --- 或 ...
+        // 1. 文档标记 --- 或 ...
         if let m = line.range(of: #"^(---|\.\.\.)"#, options: .regularExpression) {
             let mark = String(line[m])
             let rest = String(line[m.upperBound...])
@@ -138,12 +130,12 @@ struct YAMLHighlighter {
             return result
         }
 
-        // 3. YAML 指令（% 开头）
+        // 2. YAML 指令（% 开头）
         if line.hasPrefix("%") {
             return line.attr(base, color: c.directive)
         }
 
-        // 4. 普通键值对
+        // 3. 普通键值对
         return highlightKeyValue(line, colors: c, base: base)
     }
 
@@ -263,42 +255,29 @@ struct YAMLHighlighter {
 
     // MARK: - 值高亮
 
-    private func highlightValue(_ raw: String, colors c: Colors, base: [NSAttributedString.Key: Any]) -> NSAttributedString {
-        guard !raw.isEmpty else { return NSAttributedString(string: "", attributes: base) }
-
-        let split = splitTrailingComment(raw)
-        let val = split.val
-        let comment = split.comment
+    private func highlightValue(_ val: String, colors c: Colors, base: [NSAttributedString.Key: Any]) -> NSAttributedString {
+        guard !val.isEmpty else { return NSAttributedString(string: "", attributes: base) }
 
         let result = NSMutableAttributedString()
 
-        if let val, !val.isEmpty {
-            let lower = val.lowercased()
+        let lower = val.lowercased()
 
-            if let url = val.firstMatch(of: Self.urlPattern) {
-                // 值以 URL 开头：URL 部分单独上色，其余原样
-                result.append(String(url.output).attr(base, color: c.url))
-                result.append(NSAttributedString(string: String(val[url.range.upperBound...]), attributes: base))
-            } else if ["true", "false", "null", "~", "yes", "no", "on", "off"].contains(lower) {
-                result.append(val.attr(base, color: c.bool))
-            } else if val.range(of: Self.numberPattern, options: .regularExpression) != nil {
-                result.append(val.attr(base, color: c.number))
-            } else if val.hasPrefix("\"") || val.hasPrefix("'") {
-                result.append(val.attr(base, color: c.string))
-            } else if val.hasPrefix("{") || val.hasPrefix("[") {
-                result.append(highlightFlowMapping(val, colors: c, base: base))
-            } else if val.hasPrefix("&") || val.hasPrefix("*") {
-                result.append(val.attr(base, color: c.anchor))
-            } else {
-                result.append(NSAttributedString(string: val, attributes: base))
-            }
-        }
-
-        if let comment, !comment.isEmpty {
-            if result.length > 0 {
-                result.append(NSAttributedString(string: " ", attributes: base))
-            }
-            result.append(comment.attr(base, color: c.comment))
+        if let url = val.firstMatch(of: Self.urlPattern) {
+            // 值以 URL 开头：URL 部分单独上色，其余原样
+            result.append(String(url.output).attr(base, color: c.url))
+            result.append(NSAttributedString(string: String(val[url.range.upperBound...]), attributes: base))
+        } else if ["true", "false", "null", "~", "yes", "no", "on", "off"].contains(lower) {
+            result.append(val.attr(base, color: c.bool))
+        } else if val.range(of: Self.numberPattern, options: .regularExpression) != nil {
+            result.append(val.attr(base, color: c.number))
+        } else if val.hasPrefix("\"") || val.hasPrefix("'") {
+            result.append(val.attr(base, color: c.string))
+        } else if val.hasPrefix("{") || val.hasPrefix("[") {
+            result.append(highlightFlowMapping(val, colors: c, base: base))
+        } else if val.hasPrefix("&") || val.hasPrefix("*") {
+            result.append(val.attr(base, color: c.anchor))
+        } else {
+            result.append(NSAttributedString(string: val, attributes: base))
         }
 
         return result
@@ -348,37 +327,6 @@ struct YAMLHighlighter {
         }
 
         return result.length > 0 ? result : NSAttributedString(string: text, attributes: base)
-    }
-
-    // MARK: - 行尾注释拆分
-
-    private func splitTrailingComment(_ value: String) -> (val: String?, comment: String?) {
-        if value.hasPrefix("#") { return (nil, value) }
-
-        var inSingle = false
-        var inDouble = false
-        var escaped = false
-        let chars = Array(value)
-
-        for i in 0..<(chars.count - 1) {
-            if escaped {
-                escaped = false
-                continue
-            }
-            if chars[i] == "\\" && inDouble {
-                escaped = true
-                continue
-            }
-            if chars[i] == "'" && !inDouble { inSingle.toggle(); continue }
-            if chars[i] == "\"" && !inSingle { inDouble.toggle(); continue }
-
-            if !inSingle && !inDouble && chars[i] == " " && chars[i + 1] == "#" {
-                return (String(value.prefix(i)).trimmingCharacters(in: CharacterSet(charactersIn: " ")),
-                        String(value.dropFirst(i + 1)))
-            }
-        }
-
-        return (value, nil)
     }
 
     // MARK: - 辅助
