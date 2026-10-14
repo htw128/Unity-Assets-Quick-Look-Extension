@@ -67,11 +67,11 @@ struct YAMLHighlighter {
 
     // MARK: - 词法正则
 
-    /// URL / mailto / IPv4
-    private static let urlPattern = #/^(?:(?:https?|ftp)://\S+|mailto:[^\s:]+@\S+|\d{1,3}(?:\.\d{1,3}){3}(?::\d+)?(?:\/\S*)?)/#
+    /// URL
+    private static let urlPattern = #/^https?:\/\/\S+/#
 
-    /// YAML 1.2 core schema 的标量数字（含 0b/0o/0x、`.5`、`1.`、指数、`.inf`/`.nan`、正负号）
-    private static let numberPattern = #"^[-+]?(0[bB][01_]+|0[oO][0-7_]+|0[xX][0-9a-fA-F_]+|[0-9][0-9_]*(\.[0-9_]*)?([eE][-+]?[0-9]+)?|\.[0-9_]+([eE][-+]?[0-9]+)?|\.(?:inf|Inf|INF|nan|NaN|NAN))$"#
+    /// YAML 1.2 core schema 的标量数字（含 0b/0x、`.5`、指数、正负号）
+    private static let numberPattern = #"^[-+]?(0[bB][01]+|0[xX][0-9a-fA-F]+|[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?|\.[0-9]+([eE][-+]?[0-9]+)?)$"#
 
     // MARK: - 公开接口
     
@@ -119,10 +119,9 @@ struct YAMLHighlighter {
     // MARK: - 行级高亮（移植自 yaml-highlight.js）
 
     private func highlightLine(_ line: String, colors c: Colors, base: [NSAttributedString.Key: Any]) -> NSAttributedString {
-        let trimmed = line.trimmingCharacters(in: .whitespaces)
 
         // 1. 文档标记 --- 或 ...
-        if let m = line.range(of: #"^(---|\.\.\.)"#, options: .regularExpression) {
+        if let m = line.range(of: #"^(---)"#, options: .regularExpression) {
             let mark = String(line[m])
             let rest = String(line[m.upperBound...])
             let result = NSMutableAttributedString(string: mark, attributes: withColor(base, c.docMark, bold: true))
@@ -149,26 +148,16 @@ struct YAMLHighlighter {
         let result = NSMutableAttributedString()
         var lastEnd = rest.startIndex
 
-        // Unity 类型标签 !u!21
-        for m in rest.matches(of: #/(!u![0-9]+)/#) {
+        // Unity 文档 tag !u!21 与锚点 &123456（真实样本里两者总是同时出现在 --- 行上）
+        for m in rest.matches(of: #/(!u![0-9]+|&[0-9a-zA-Z_]+)/#) {
             let range = m.range
             if range.lowerBound > lastEnd {
                 result.append(NSAttributedString(string: String(rest[lastEnd..<range.lowerBound]), attributes: base))
             }
-            result.append(NSAttributedString(string: String(rest[range]), attributes: withColor(base, c.tag)))
+            let token = String(rest[range])
+            let color = token.hasPrefix("&") ? c.anchor : c.tag
+            result.append(NSAttributedString(string: token, attributes: withColor(base, color)))
             lastEnd = range.upperBound
-        }
-
-        // 锚点 &id 和别名 *id
-        if result.length == 0 {
-            for m in rest.matches(of: #/([&*][0-9a-zA-Z_]+)/#) {
-                let range = m.range
-                if range.lowerBound > lastEnd {
-                    result.append(NSAttributedString(string: String(rest[lastEnd..<range.lowerBound]), attributes: base))
-                }
-                result.append(NSAttributedString(string: String(rest[range]), attributes: withColor(base, c.anchor)))
-                lastEnd = range.upperBound
-            }
         }
 
         if lastEnd < rest.endIndex {
@@ -266,7 +255,7 @@ struct YAMLHighlighter {
             // 值以 URL 开头：URL 部分单独上色，其余原样
             result.append(String(url.output).attr(base, color: c.url))
             result.append(NSAttributedString(string: String(val[url.range.upperBound...]), attributes: base))
-        } else if ["true", "false", "null", "~", "yes", "no", "on", "off"].contains(lower) {
+        } else if ["true", "false", "yes", "no", "on", "off"].contains(lower) {
             result.append(val.attr(base, color: c.bool))
         } else if val.range(of: Self.numberPattern, options: .regularExpression) != nil {
             result.append(val.attr(base, color: c.number))
@@ -274,8 +263,6 @@ struct YAMLHighlighter {
             result.append(val.attr(base, color: c.string))
         } else if val.hasPrefix("{") || val.hasPrefix("[") {
             result.append(highlightFlowMapping(val, colors: c, base: base))
-        } else if val.hasPrefix("&") || val.hasPrefix("*") {
-            result.append(val.attr(base, color: c.anchor))
         } else {
             result.append(NSAttributedString(string: val, attributes: base))
         }
@@ -313,7 +300,7 @@ struct YAMLHighlighter {
         let result = NSMutableAttributedString()
         var lastEnd = text.startIndex
 
-        for m in text.matches(of: #/\b(-?(?:0x[0-9a-fA-F]+|[0-9]+(?:\.[0-9]+)?))\b/#) {
+        for m in text.matches(of: #/\b(-?(?:0x[0-9a-fA-F]+|[0-9]+(?:\.[0-9]+)?|\.[0-9]+))\b/#) {
             let range = m.range
             if range.lowerBound > lastEnd {
                 result.append(NSAttributedString(string: String(text[lastEnd..<range.lowerBound]), attributes: base))
