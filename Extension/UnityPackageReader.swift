@@ -29,15 +29,24 @@ import zlib
 final class PackageNode {
 
     let name: String        // 显示名称（路径最后一段，如 "Textures" 或 "MyMaterial.mat"）
-    let fullPath: String?   // Unity 项目中的完整路径，只有叶子节点（文件）才有值
+    let fullPath: String?   // 文件和文件夹条目都有值，纯中间层为 nil
+    
+    /// 是不是文件夹。**必须由归档显式给出，不能靠"有没有子节点"推断。**
+    ///
+    /// 为什么：.unitypackage 里每个文件夹本身也有一条 pathname 记录
+    /// （实测 130 条里有 35 条），而 pathname 是按字典序处理的 ——
+    /// 文件夹的路径（`Assets/Scripts`）一定排在它的子文件（`Assets/Scripts/Foo.cs`）之前。
+    /// 所以插入子文件时那个文件夹节点还是"没有子节点"的状态，
+    /// 若拿它当"不是目录"的证据，insert 就会走到 else 分支、在它旁边再建一个同名节点：
+    /// 预览里表现为「每个文件夹都多出一行没有扩展名的'文件'，图标是 questionmark」。
+    let isDirectory: Bool
+    
     var children: [PackageNode] = []
 
-    /// 有子节点，或者没有 fullPath，就视为文件夹
-    var isDirectory: Bool { !children.isEmpty || fullPath == nil }
-
-    init(name: String, fullPath: String? = nil) {
-        self.name     = name
-        self.fullPath = fullPath
+    init(name: String, fullPath: String? = nil, isDirectory: Bool = false) {
+        self.name        = name
+        self.fullPath    = fullPath
+        self.isDirectory = isDirectory
     }
 }
 
@@ -150,12 +159,20 @@ private final class GzipInflater {
 
 // MARK: - tar 扫描
 
+/// tar 扫描结果
+struct TarScanResult {
+    /// `<guid>: <Unity 项目内路径>`
+    var pathnames: [String: String] = [:]
+    /// 带 `<guid>/asset` 条目的 guid —— 这些是**文件**；文件夹的 guid 目录里没有 asset。
+    var fileGUIDs: Set<String> = []
+}
+
 /// POSIX tar（ustar）扫描器：逐 512 字节块行走，挑出 guid → pathname 映射。
 private enum TarScanner {
 
-    /// 扫描归档，返回 `<guid>: <Unity 项目内路径>`。
-    static func pathnames(in b: [UInt8]) throws -> [String: String] {
-        var result: [String: String] = [:]
+    /// 扫描归档，返回 `<guid>: <Unity 项目内路径>`以及哪些 guid 是文件。
+    static func scan(in b: [UInt8]) throws -> TarScanResult {
+        var result = TarScanResult()
         var offset = 0
         var pendingPath: String?
 
@@ -194,24 +211,21 @@ private enum TarScanner {
 
             var name = rawName(b, offset)
             if let p = pendingPath { name = p; pendingPath = nil }
-
             let isDir = (typeflag == 0x35) || name.hasSuffix("/")
-
-            // 只关心 `<guid>/pathname` 这种小文本条目：
-            // 这一条判断同时天然过滤掉了 macOS 的 AppleDouble `._*` 伴生文件
-            // （它们在真实样本里占了足足一半的条目）。
-            if !isDir, size > 0, size < 65_536 {
-                let parts = name.split(separator: "/").filter { $0 != "." }
-                if parts.count == 2, parts[1] == "pathname",
-                   !parts[0].hasPrefix("._") {
-                    let content = String(decoding: slice(b, offset + 512, size), as: UTF8.self)
-                        .trimmingCharacters(in: .whitespacesAndNewlines)
-                    if !content.isEmpty {
-                        result[String(parts[0])] = content
+            
+            let parts = name.split(separator: "/").filter { $0 != "." }
+            if parts.count == 2, !parts[0].hasPrefix("._") { // 在Mac上的Unity导出的unitypackage会夹带 AppleDouble 文件
+                let guid = String(parts[0])
+                if parts[1] == "pathname" {
+                    // 只关心这种小文本条目；这条判断同时天然过滤掉 AppleDouble `._*` 伴生文件
+                    if !isDir, size > 0, size < 65_536 {
+                        let content = String(decoding: slice(b, offset + 512, size), as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !content.isEmpty { result.pathnames[guid] = content }
                     }
+                } else if parts[1] == "asset" {
+                    result.fileGUIDs.insert(guid)
                 }
             }
-
             offset += 512 + roundUp512(size)
         }
 
@@ -326,7 +340,7 @@ struct TarGzipReader {
     /// 解压后大小的上限。超过就拒绝预览，避免把 Quick Look 的内存吃爆。
     static let decompressedLimit = 256 * 1_048_576
 
-    func pathnames(in data: Data) throws -> [String: String] {
+    func scan(_ data: Data) throws -> TarScanResult {
         guard data.count >= 2 else { throw ReaderError.emptyArchive }
 
         let magic = [UInt8](data.prefix(2))
@@ -344,9 +358,9 @@ struct TarGzipReader {
         let plain = try GzipInflater().gunzip(data, limit: Self.decompressedLimit)
         guard !plain.isEmpty else { throw ReaderError.emptyArchive }
 
-        let map = try TarScanner.pathnames(in: plain)
-        guard !map.isEmpty else { throw ReaderError.emptyArchive }
-        return map
+        let result = try TarScanner.scan(in: plain)
+        guard !result.pathnames.isEmpty else { throw ReaderError.emptyArchive }
+        return result
     }
 
     /// 读 gzip 尾部的 ISIZE 字段。
@@ -373,7 +387,7 @@ struct UnityPackageReader {
     ///
     /// 策略：
     ///   1. 用 Data(contentsOf:) 读取文件（能正确处理 file reference URL 和安全作用域 URL）
-    ///   2. 纯用户态解包：zlib 解 gzip → 扫描 tar → 取出所有 pathname
+    ///   2. 纯用户态解包：zlib 解 gzip → 扫描 tar → 取出所有 pathname， 以及哪些 guid 是文件
     ///   3. 组装目录树
     ///
     /// 全程不落盘、不起子进程 —— 沙盒里唯一走得通的路线。
@@ -383,42 +397,42 @@ struct UnityPackageReader {
         // 这正是当初 AppleArchive 的 FilePath 栽跟头的地方。
         let data = try Data(contentsOf: url)
 
-        // 解包 + 取路径映射，全部在内存里完成
-        let guidToPath = try TarGzipReader().pathnames(in: data)
-
+        let scan = try TarGzipReader().scan(data)
         // 组装目录树
-        return buildTree(from: guidToPath)
+        return buildTree(pathnames: scan.pathnames, fileGUIDs: scan.fileGUIDs)
     }
 
     // MARK: - 树构建
 
     /// 把 GUID → 路径 的映射转换成目录树。
-    private func buildTree(from guidToPath: [String: String]) -> PackageNode {
-        let root = PackageNode(name: "/")
-
-        for fullPath in guidToPath.values.sorted() {
+    private func buildTree(pathnames: [String: String], fileGUIDs: Set<String>) -> PackageNode {
+        let root = PackageNode(name: "/", isDirectory: true)
+        
+        let entries = pathnames.sorted { ($0.value, $0.key) < ($1.value, $1.key) }
+        
+        for (guid, fullPath) in entries {
             let segments = fullPath.split(separator: "/").map(String.init)
             guard !segments.isEmpty else { continue }
-            insert(segments: segments, fullPath: fullPath, into: root)
+            insert(segments: segments, fullPath: fullPath, isDirectory: !fileGUIDs.contains(guid), into: root)
         }
 
         return root
     }
 
     /// 递归地把路径段插入树中。
-    private func insert(segments: [String], fullPath: String, into node: PackageNode) {
+    private func insert(segments: [String], fullPath: String, isDirectory: Bool, into node: PackageNode) {
         guard let first = segments.first else { return }
         let remaining = Array(segments.dropFirst())
 
         if remaining.isEmpty {
-            node.children.append(PackageNode(name: first, fullPath: fullPath))
+            node.children.append(PackageNode(name: first, fullPath: fullPath, isDirectory: isDirectory))
         } else {
             if let existing = node.children.first(where: { $0.name == first && $0.isDirectory }) {
-                insert(segments: remaining, fullPath: fullPath, into: existing)
+                insert(segments: remaining, fullPath: fullPath, isDirectory: isDirectory, into: existing)
             } else {
-                let folder = PackageNode(name: first)
+                let folder = PackageNode(name: first, isDirectory: true)
                 node.children.append(folder)
-                insert(segments: remaining, fullPath: fullPath, into: folder)
+                insert(segments: remaining, fullPath: fullPath, isDirectory: isDirectory, into: folder)
             }
         }
     }

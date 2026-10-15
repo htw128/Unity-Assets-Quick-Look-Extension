@@ -91,26 +91,24 @@ private final class PackagePreviewContainerView: NSView {
         let scrollView  = makeScrollView(containing: outlineView)
 
         // MARK: 垂直布局
+        // 不用 NSStackView 包一层：竖排 stack 的交叉轴 alignment 默认 .centerX，
+        // 不会把子视图拉满整行宽 → 标题栏背景只能覆盖内容那一小块。
+        // 显式约束语义无歧义：标题栏横跨整行、按内容定高；滚动视图吃掉剩下的空间。
+        // （因此也不再需要那两个 hugging 优先级调整：bottom 约束本身就是 required。）
+        titleBar.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(titleBar)
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(scrollView)
 
-        let stack = NSStackView(views: [titleBar, scrollView])
-        stack.orientation = .vertical
-        stack.spacing     = 0
-        // NSStackView 默认在边缘有内边距，这里去掉，让内容铺满
-        stack.edgeInsets  = .init(top: 0, left: 0, bottom: 0, right: 0)
-
-        // NSStackView 对子视图的 hugging / compression 优先级有默认值。
-        // 我们希望 scrollView 尽量撑满剩余空间，把它的 hugging 优先级设低，
-        // 让它在有多余空间时主动扩展，而不是收缩到最小。
-        stack.setHuggingPriority(.defaultLow, for: .vertical)
-        scrollView.setContentHuggingPriority(.defaultLow, for: .vertical)
-
-        addSubview(stack)
-        stack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: topAnchor),
-            stack.bottomAnchor.constraint(equalTo: bottomAnchor),
-            stack.leadingAnchor.constraint(equalTo: leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo: trailingAnchor),
+            titleBar.topAnchor.constraint(equalTo: topAnchor),
+            titleBar.leadingAnchor.constraint(equalTo: leadingAnchor),
+            titleBar.trailingAnchor.constraint(equalTo: trailingAnchor),
+
+            scrollView.topAnchor.constraint(equalTo: titleBar.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
 
         // 全部加载完成后展开第一层，让用户立即看到内容
@@ -125,38 +123,59 @@ private final class PackagePreviewContainerView: NSView {
         let iconView = NSImageView()
         if let icon = NSImage(systemSymbolName: "shippingbox",
                               accessibilityDescription: "Unity Package") {
-            let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .regular)
-            iconView.image = icon.withSymbolConfiguration(config)
+            iconView.image = icon.withSymbolConfiguration(
+                .init(pointSize: 16, weight: .regular)
+            )
         }
         iconView.contentTintColor = .secondaryLabelColor
 
         // 文件名标签
         let label = NSTextField(labelWithString: fileName)
         label.font        = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor   = .secondaryLabelColor
+//        label.textColor   = .textColor
         label.lineBreakMode = .byTruncatingMiddle  // 超长文件名从中间截断，保留后缀
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal) // 窄窗口时允许压缩，否则会和下面的 trailing 约束打架（约束冲突会在控制台刷日志）
 
-        // 标题栏横向布局
-        let bar = NSStackView(views: [iconView, label])
-        bar.orientation = .horizontal
-        bar.spacing     = 6
-        bar.edgeInsets  = .init(top: 8, left: 12, bottom: 8, right: 12)
-        bar.alignment   = .centerY
+        // 内容行
+        let content = NSStackView(views: [iconView, label])
+        content.orientation = .horizontal
+        content.spacing     = 6
+        content.alignment   = .centerY
+        
+        // 背景
+        // 背景用普通 NSView 而不是 NSStackView：
+        //   NSStackView 会 hug 内容，背景只覆盖内容那一小块、不铺满整行；
+        //   而且给 stack 设 layer 背景色还踩上面说的「CGColor 一次性解析」坑。
+        let bar = AdaptiveBackgroundView(frame: .zero)
+        bar.fillColor  = .controlBackgroundColor
+        bar.wantsLayer = true
+        
+        // 底部分割线
+        let separator = NSBox()
+        separator.boxType = .separator
+        
+        content.translatesAutoresizingMaskIntoConstraints   = false
+        separator.translatesAutoresizingMaskIntoConstraints = false
+        bar.addSubview(content)
+        bar.addSubview(separator)
+        
+        NSLayoutConstraint.activate([
+            // 包名居中
+            content.centerXAnchor.constraint(equalTo: bar.centerXAnchor),
+            
+            // 两侧留白：用 ≥ / ≤ 而不是 =，超长文件名才会被挤到截断，而不是撑破布局
+            content.leadingAnchor.constraint(greaterThanOrEqualTo: bar.leadingAnchor, constant: 12),
+            content.trailingAnchor.constraint(lessThanOrEqualTo: bar.trailingAnchor, constant: -12),
+            content.topAnchor.constraint(equalTo: bar.topAnchor, constant: 8),
+            content.bottomAnchor.constraint(equalTo: bar.bottomAnchor, constant: -8),
 
-        // 标题栏背景（使用系统控件背景色，深浅模式自动适配）
-        bar.wantsLayer       = true
-        bar.layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
+            // 分隔线横跨整行、贴底
+            separator.leadingAnchor.constraint(equalTo: bar.leadingAnchor),
+            separator.trailingAnchor.constraint(equalTo: bar.trailingAnchor),
+            separator.bottomAnchor.constraint(equalTo: bar.bottomAnchor),
+        ])
 
-        // 底部分隔线
-        let separator       = NSBox()
-        separator.boxType   = .separator
-
-        let container = NSStackView(views: [bar, separator])
-        container.orientation = .vertical
-        container.spacing     = 0
-        container.edgeInsets  = .init()  // NSEdgeInsets 没有 .zero，无参 init() 所有值默认为 0
-
-        return container
+        return bar
     }
 
     private func makeOutlineView() -> NSOutlineView {
@@ -164,9 +183,6 @@ private final class PackagePreviewContainerView: NSView {
 
         // NSOutlineView 至少需要一个列
         let column = NSTableColumn(identifier: .init("name"))
-        column.title = "文件"
-        // minWidth 防止列被拖得太窄
-        column.minWidth = 200
         outlineView.addTableColumn(column)
 
         // outlineTableColumn 指定哪一列显示展开/折叠的三角箭头
@@ -193,6 +209,31 @@ private final class PackagePreviewContainerView: NSView {
         scrollView.borderType          = .noBorder
 
         return scrollView
+    }
+}
+
+// MARK: - 自适应背景视图
+/// 背景色会随深浅色模式自动更新的纯色视图。
+///
+/// 为什么不能写成 `layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor`？
+///   1. `controlBackgroundColor` 是*动态颜色*，只有在某个 NSAppearance 下解析才有确定的 RGBA；
+///      `CGColor` 则是*已经解析过的固定值*。
+///   2. `.cgColor` 解析时用的是「当前绘图外观」（NSAppearance.current）。
+///      我们在 makeView 里造视图时，视图还没进窗口，拿到的是扩展进程的默认外观（浅色）
+///      → 图层被永久钉在白色。深色模式下就成了「白底 + 浅色文字 = 文字完全看不见」。
+///   3. 正规解法是 `wantsUpdateLayer = true` + 在 `updateLayer()` 里设色：
+///      视图的 effectiveAppearance 一变（切深浅色、窗口换外观），AppKit 就会重新调
+///      updateLayer()，颜色随之重新解析。（wantsUpdateLayer 为 true 时不再走 draw(_:)）
+private final class AdaptiveBackgroundView: NSView {
+    
+    var fillColor: NSColor = .controlBackgroundColor {
+        didSet { needsDisplay = true }
+    }
+    
+    override var wantsUpdateLayer: Bool { true }
+    
+    override func updateLayer() {
+        layer?.backgroundColor = fillColor.cgColor
     }
 }
 
@@ -240,54 +281,26 @@ private final class PackageOutlineDataSource: NSObject,
     // MARK: NSOutlineViewDelegate
 
     /// 返回某一行的视图。
-    /// 这里我们自己构建 NSTableCellView，而不是用 makeView(withIdentifier:owner:) 复用，
-    /// 因为 Quick Look 扩展的生命周期很短，复用池的收益有限。
+    /// 走 NSTableView 的复用机制：滚出可视区的行会被回收，再滚回来时只改内容，不重建视图。
     func outlineView(_ outlineView: NSOutlineView,
                      viewFor tableColumn: NSTableColumn?,
                      item: Any) -> NSView? {
 
         guard let node = item as? PackageNode else { return nil }
+        
+        // 先从复用池取，取不到才新建。
+        // 返回的 cellView 自带 identifier，NSTableView 才能在它滚出可视区后自动回收。
+        let cellView = (outlineView.makeView(withIdentifier: Self.cellIdentifier, owner: nil)
+                        as? NSTableCellView) ?? makeCellView()
 
-        // MARK: 图标
-
-        let iconView = NSImageView()
-        let symbolName = node.isDirectory ? "folder" : sfSymbol(for: node.name)
-        if let icon = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil) {
-            let config = NSImage.SymbolConfiguration(pointSize: 13, weight: .regular)
-            iconView.image = icon.withSymbolConfiguration(config)
-        }
-        // 文件夹用系统黄色，文件用次要标签色
-        iconView.contentTintColor = node.isDirectory ? .init(named: "FolderColor") ?? .systemYellow
-                                                     : .secondaryLabelColor
-
-        // MARK: 文件名
-
-        let textField = NSTextField(labelWithString: node.name)
-        textField.font          = .systemFont(ofSize: 13)
-        textField.lineBreakMode = .byTruncatingTail
-
-        // MARK: 横向排列图标和文字
-
-        let cellStack = NSStackView(views: [iconView, textField])
-        cellStack.orientation = .horizontal
-        cellStack.spacing     = 5
-        cellStack.alignment   = .centerY
-        // edgeInsets 给行内容加左右内边距
-        cellStack.edgeInsets  = .init(top: 0, left: 2, bottom: 0, right: 4)
-
-        // NSTableCellView 是 NSOutlineView 行视图的标准容器
-        let cellView = NSTableCellView()
-        cellView.textField = textField
-        cellView.imageView = iconView
-
-        cellStack.translatesAutoresizingMaskIntoConstraints = false
-        cellView.addSubview(cellStack)
-        NSLayoutConstraint.activate([
-            cellStack.topAnchor.constraint(equalTo: cellView.topAnchor),
-            cellStack.bottomAnchor.constraint(equalTo: cellView.bottomAnchor),
-            cellStack.leadingAnchor.constraint(equalTo: cellView.leadingAnchor),
-            cellStack.trailingAnchor.constraint(equalTo: cellView.trailingAnchor),
-        ])
+        // 复用/新建都要走配置：把这一行的内容和状态一次性刷成当前节点的
+        cellView.imageView?.image = symbol(named: node.isDirectory ? "folder" : sfSymbol(for: node.name), pointSize: 13)
+        // 选中行时 AppKit 会把 NSTableCellView 的 imageView / textField 自动重着色为白色
+        // （实测），所以 强调色图标 + 强调色选中背景 不会糊掉 不用手动处理选中状态 `selectionHighlightStyle`
+        cellView.imageView?.contentTintColor = node.isDirectory ? .systemBlue : .secondaryLabelColor
+        cellView.textField?.stringValue = node.name
+        // 树是从完整路径重建的，行里只有最后一段；tooltip 补上 Unity 项目内的完整路径
+        cellView.toolTip = node.fullPath ?? node.name
 
         return cellView
     }
@@ -301,7 +314,6 @@ private final class PackageOutlineDataSource: NSObject,
         let ext = (fileName as NSString).pathExtension.lowercased()
 
         switch ext {
-        case "cs":                          return "text.document"           // C# 脚本
         case "shader", "hlsl", "glsl":      return "sparkles"           // Shader
         case "mat":                         return "circle.hexagongrid" // 材质
         case "prefab":                      return "cube"               // 预制体
@@ -314,10 +326,68 @@ private final class PackageOutlineDataSource: NSObject,
         case "anim":                        return "figure.walk"        // 动画
         case "controller":                  return "point.3.connected.trianglepath.dotted" // 动画控制器
         case "ttf", "otf":                  return "textformat"         // 字体
-        case "json", "xml", "yaml",
-             "yml", "txt", "md", "meta":    return "text.page"      // 文本
-        case "dll":                         return "puzzlepiece.extension"        // 插件
-        default:                            return "questionmark.text.page"                // 未知类型
+        case "json", "xml", "yaml", "yml",
+             "txt", "md", "meta", "plist",
+             "modulemap", "h", "cs":        return "text.document"          // 文本
+        case "dll", "aar", "dylib", "jar":  return "puzzlepiece.extension"  // 插件
+        case "mixer":                       return "slider.vertical.3"      // 混音台
+        case "asmdef":                      return "curlybraces"            // 程序集定义
+        case "bytes":                       return "text.page"              // 自定义二进制数据
+        default:                            return "questionmark.text.page" // 未知类型故意用问号：提示这是个需要自己确认的可疑文件，不要改成 doc 之类的通用图标
         }
+    }
+    
+    // MARK: - SF Symbol 缓存
+    /// SF Symbol 解析结果缓存。
+    /// NSImage(systemSymbolName:) 每次都要查符号表 + 新建图像，滚动时每行调一次；
+    /// 图标种类只有十几种，缓存后每个符号只算一次。
+    /// 安全性：本对象只被主线程使用（QL 的 delegate 回调都在主线程），无需加锁；
+    /// 且 SF Symbol 是模板图，上色靠 imageView.contentTintColor，缓存不影响深浅色。
+    ///
+    private var symbolCache: [String: NSImage] = [:]
+    
+    private static let cellIdentifier = NSUserInterfaceItemIdentifier("PackageRow")
+    
+    /// 取图标并缓存
+    private func symbol(named name: String, pointSize: CGFloat) -> NSImage? {
+        let key = "\(name)@\(pointSize)"
+        if let cached = symbolCache[key] { return cached }
+        guard let image = NSImage(systemSymbolName: name, accessibilityDescription: nil)?
+            .withSymbolConfiguration(.init(pointSize: pointSize, weight: .regular))
+                else { return nil }
+        symbolCache[key] = image
+        return image
+    }
+    
+    /// 新建一行：NSTableCellView + 「图标 + 文件名」横向 stack，只建一次。
+    private func makeCellView() -> NSTableCellView {
+        let iconView  = NSImageView()
+        let textField = NSTextField(labelWithString: "")
+        textField.font          = .systemFont(ofSize: 13)
+        textField.lineBreakMode = .byTruncatingTail
+        // 同上：行被拖窄时允许截断，而不是和 trailing 约束冲突
+        textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        let cellStack = NSStackView(views: [iconView, textField])
+        cellStack.orientation = .horizontal
+        cellStack.spacing     = 5
+        cellStack.alignment   = .centerY
+        cellStack.edgeInsets  = .init(top: 0, left: 2, bottom: 0, right: 4)  // 行内容左右内边距
+
+        let cellView = NSTableCellView()
+        cellView.identifier = Self.cellIdentifier     // ← 少了这行就不会被回收
+        cellView.textField  = textField               // 供 configure 阶段访问
+        cellView.imageView  = iconView
+
+        cellStack.translatesAutoresizingMaskIntoConstraints = false
+        cellView.addSubview(cellStack)
+        NSLayoutConstraint.activate([
+            cellStack.topAnchor.constraint(equalTo: cellView.topAnchor),
+            cellStack.bottomAnchor.constraint(equalTo: cellView.bottomAnchor),
+            cellStack.leadingAnchor.constraint(equalTo: cellView.leadingAnchor),
+            cellStack.trailingAnchor.constraint(equalTo: cellView.trailingAnchor),
+        ])
+
+        return cellView
     }
 }
