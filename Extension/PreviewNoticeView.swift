@@ -1,6 +1,6 @@
 //
 //  PreviewNoticeView.swift
-//  UnityAssetsQuickLook
+//  Extension
 //
 //  Created by Oliver Wong on 2026/9/23.
 //

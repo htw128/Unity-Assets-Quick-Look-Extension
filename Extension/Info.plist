@@ -10,10 +10,40 @@
 			<false/>
 			<key>QLSupportedContentTypes</key>
 			<array>
-				<string>com.unity3d.asset</string>
-				<string>com.unity3d.unity-scene</string>
-				<string>com.unity3d.meta</string>
-				<string>com.unity3d.package</string>
+				<string>com.unity.asset</string>
+				<string>com.unity.unity-scene</string>
+				<string>com.unity.meta</string>
+				<string>com.unity.unitypackage</string>
+				<string>com.unity.anim</string>
+				<string>com.unity.asmdef</string>
+				<string>com.unity.brush</string>
+				<string>com.unity.controller</string>
+				<string>com.unity.cubemap</string>
+				<string>com.unity.d3d12devicefilter</string>
+				<string>com.unity.fontsettings</string>
+				<string>com.unity.giparams</string>
+				<string>com.unity.guiskin</string>
+				<string>com.unity.lighting</string>
+				<string>com.unity.mask</string>
+				<string>com.unity.mat</string>
+				<string>com.unity.mixer</string>
+				<string>com.unity.overridecontroller</string>
+				<string>com.unity.physicmaterial</string>
+				<string>com.unity.physicsmaterial2d</string>
+				<string>com.unity.playable</string>
+				<string>com.unity.prefab</string>
+				<string>com.unity.preset</string>
+				<string>com.unity.rendertexture</string>
+				<string>com.unity.shadervariants</string>
+				<string>com.unity.signal</string>
+				<string>com.unity.spriteatlas</string>
+				<string>com.unity.spritelib</string>
+				<string>com.unity.terrainlayer</string>
+				<string>com.unity.vfx</string>
+				<string>com.unity.vfxblock</string>
+				<string>com.unity.vfxoperator</string>
+				<string>com.unity.vulkandevicefilter</string>
+				<string>com.unity.wlt</string>
 			</array>
 			<key>QLSupportsSearchableItems</key>
 			<false/>
@@ -27,13 +57,13 @@
 	<array>
 		<dict>
 			<key>UTTypeDescription</key>
-			<string>Unity serialized asset</string>
+			<string>Unity native asset</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.data</string>
 			</array>
 			<key>UTTypeIdentifier</key>
-			<string>com.unity3d.asset</string>
+			<string>com.unity.asset</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -44,13 +74,13 @@
 		</dict>
 		<dict>
 			<key>UTTypeDescription</key>
-			<string>Unity scene file</string>
+			<string>Unity scene asset</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.data</string>
 			</array>
 			<key>UTTypeIdentifier</key>
-			<string>com.unity3d.unity-scene</string>
+			<string>com.unity.unity-scene</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -61,7 +91,7 @@
 		</dict>
 		<dict>
 			<key>UTTypeIdentifier</key>
-			<string>com.unity3d.meta</string>
+			<string>com.unity.meta</string>
 			<key>UTTypeDescription</key>
 			<string>Unity meta file</string>
 			<key>UTTypeConformsTo</key>
@@ -78,9 +108,9 @@
 		</dict>
 		<dict>
 			<key>UTTypeIdentifier</key>
-			<string>com.unity3d.package</string>
+			<string>com.unity.unitypackage</string>
 			<key>UTTypeDescription</key>
-			<string>Unity package</string>
+			<string>Unity assets package</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.data</string>
@@ -90,6 +120,516 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>unitypackage</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.anim</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Animation Clip</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>anim</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.asmdef</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Assembly Definition</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>asmdef</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.brush</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Terrain Brush</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>brush</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.controller</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Animator Controller</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>controller</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.cubemap</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Legacy Cubemap</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cubemap</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.d3d12devicefilter</string>
+			<key>UTTypeDescription</key>
+			<string>D3D12 Device Filter</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>d3d12devicefilter</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.fontsettings</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Custom Font</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>fontsettings</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.giparams</string>
+			<key>UTTypeDescription</key>
+			<string>Unity global illumination parameters</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>giparams</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.guiskin</string>
+			<key>UTTypeDescription</key>
+			<string>Unity GUI skin</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>guiskin</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.lighting</string>
+			<key>UTTypeDescription</key>
+			<string>Unity lighting settings</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>lighting</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.mask</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Avatar Mask</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>mask</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.mat</string>
+			<key>UTTypeDescription</key>
+			<string>Unity material asset</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>mat</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.mixer</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Audio Mixer</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>mixer</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.overridecontroller</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Animator Override Controller</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>overrideController</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.physicmaterial</string>
+			<key>UTTypeDescription</key>
+			<string>Unity 3D physics material</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>physicMaterial</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.physicsmaterial2d</string>
+			<key>UTTypeDescription</key>
+			<string>Unity 2D physics material</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>physicsMaterial2D</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.playable</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Timeline asset</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>playable</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.prefab</string>
+			<key>UTTypeDescription</key>
+			<string>Unity prefab asset</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>prefab</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.preset</string>
+			<key>UTTypeDescription</key>
+			<string>Unity preset asset</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>preset</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.rendertexture</string>
+			<key>UTTypeDescription</key>
+			<string>Unity render texture</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>renderTexture</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.shadervariants</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Shader Variant collection</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>shadervariants</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.signal</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Timeline Signal asset</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>signal</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.spriteatlas</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Sprite atlas</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>spriteatlas</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.spritelib</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Sprite Library asset</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>spriteLib</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.terrainlayer</string>
+			<key>UTTypeDescription</key>
+			<string>Unity terrain layer</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>terrainlayer</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.vfx</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Visual Effect Graph asset</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>vfx</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.vfxblock</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Visual Effect Graph Block</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>vfxblock</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.vfxoperator</string>
+			<key>UTTypeDescription</key>
+			<string>Unity Visual Effect Graph Operator</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>vfxoperator</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.vulkandevicefilter</string>
+			<key>UTTypeDescription</key>
+			<string>Vulkan Device Filter</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>vulkandevicefilter</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity.wlt</string>
+			<key>UTTypeDescription</key>
+			<string>Unity workspace layout</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>wlt</string>
 				</array>
 			</dict>
 		</dict>
