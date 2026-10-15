@@ -26,7 +26,7 @@ import zlib
 // MARK: - 数据模型
 
 /// 代表 .unitypackage 内部目录树的一个节点。
-final class PackageNode {
+nonisolated final class PackageNode {
 
     let name: String        // 显示名称（路径最后一段，如 "Textures" 或 "MyMaterial.mat"）
     let fullPath: String?   // 文件和文件夹条目都有值，纯中间层为 nil
@@ -53,7 +53,7 @@ final class PackageNode {
 // MARK: - 错误
 
 /// 读取 .unitypackage 时可能出现的错误。
-enum ReaderError: Error, LocalizedError {
+nonisolated enum ReaderError: Error, LocalizedError {
     case cannotDecompress
     case emptyArchive
     case tooLarge(decompressedBytes: Int, limitBytes: Int)
@@ -76,13 +76,13 @@ enum ReaderError: Error, LocalizedError {
 // MARK: - zlib 常量
 
 // zlib 的 #define 在这里显式落成 Swift 常量，避开宏导入的不确定性。
-private let kZOK: Int32 = 0
-private let kZStreamEnd: Int32 = 1
-private let kZBufError: Int32 = -5
-private let kZNoFlush: Int32 = 0
+nonisolated private let kZOK: Int32 = 0
+nonisolated private let kZStreamEnd: Int32 = 1
+nonisolated private let kZBufError: Int32 = -5
+nonisolated private let kZNoFlush: Int32 = 0
 /// 16 = 只解 gzip 容器；+15 = MAX_WBITS。见 zlib.h 中 inflateInit2 的说明。
-private let kGzipWindowBits: Int32 = 16 + 15
-private let kOutChunk = 1 << 20
+nonisolated private let kGzipWindowBits: Int32 = 16 + 15
+nonisolated private let kOutChunk = 1 << 20
 
 // MARK: - gzip 解压
 
@@ -90,7 +90,7 @@ private let kOutChunk = 1 << 20
 ///
 /// 用 final class 持有 z_stream：**绝不能让 z_stream 作为 struct 被复制** ——
 /// init 之后发生拷贝会让 next_in/next_out 指向旧内存。
-private final class GzipInflater {
+nonisolated private final class GzipInflater {
 
     private var stream = z_stream()
     private var ready = false
@@ -160,7 +160,7 @@ private final class GzipInflater {
 // MARK: - tar 扫描
 
 /// tar 扫描结果
-struct TarScanResult {
+nonisolated struct TarScanResult {
     /// `<guid>: <Unity 项目内路径>`
     var pathnames: [String: String] = [:]
     /// 带 `<guid>/asset` 条目的 guid —— 这些是**文件**；文件夹的 guid 目录里没有 asset。
@@ -168,7 +168,7 @@ struct TarScanResult {
 }
 
 /// POSIX tar（ustar）扫描器：逐 512 字节块行走，挑出 guid → pathname 映射。
-private enum TarScanner {
+nonisolated private enum TarScanner {
 
     /// 扫描归档，返回 `<guid>: <Unity 项目内路径>`以及哪些 guid 是文件。
     static func scan(in b: [UInt8]) throws -> TarScanResult {
@@ -335,7 +335,7 @@ private enum TarScanner {
 ///
 /// .unitypackage 是 gzip 压缩的 tar：每个资产占一个 `<guid>/` 目录，
 /// 目录里的 `pathname` 文件记录该资产在 Unity 项目中的完整路径。
-struct TarGzipReader {
+nonisolated struct TarGzipReader {
 
     /// 解压后大小的上限。超过就拒绝预览，避免把 Quick Look 的内存吃爆。
     static let decompressedLimit = 256 * 1_048_576
@@ -379,7 +379,7 @@ struct TarGzipReader {
 
 // MARK: - 读取器
 
-struct UnityPackageReader {
+nonisolated struct UnityPackageReader {
 
     // MARK: - 公开接口
 

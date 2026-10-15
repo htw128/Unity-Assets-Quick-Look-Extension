@@ -27,11 +27,11 @@ struct YAMLPreviewProvider {
 
         // 尝试以 UTF-8 解码
         guard let text = String(data: data, encoding: .utf8) else {
-            return await makeBinaryNoticeView(fileName: url.lastPathComponent)
+            return makeBinaryNoticeView(fileName: url.lastPathComponent)
         }
 
         // 生成带语法高亮的 NSTextView 预览
-        return await makeTextPreviewView(for: text)
+        return makeTextPreviewView(for: text)
     }
 
     // MARK: - 文本预览（NSTextView）
