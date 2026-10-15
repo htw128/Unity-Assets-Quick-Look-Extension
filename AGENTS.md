@@ -7,6 +7,18 @@ macOS Quick Look 扩展，让 Finder 能预览以文本形式存储的 Unity 原
 
 ---
 
+# ⭐ 协作偏好：面向学习者的「精确定位式」讲解
+
+用户正在**通过本项目学习 macOS / Swift 开发**，因此对每个需求，回复必须是**精确到文件和位置的操作指南**，而不是笼统的方向性描述：
+
+- **明确「改哪个文件」**：给出完整相对路径（如 `Extension/PreviewViewController.swift`）
+- **明确「改哪里」**：指出函数名 / 类名 / 行号范围或原文片段，说明定位依据
+- **明确「改成什么」**：给出可直接落地的代码片段，而非伪代码
+- **说明「为什么」**：解释该改动涉及的 API、原理、坑（本项目已积累大量实测结论，见下文各节）
+- 反例（不要这样写）：❌「在路由逻辑里加一个 case 即可」——应写成 ✅「在 `Extension/PreviewViewController.swift` 的 `preparePreviewOfFile(at:)` 里那个 `switch` 的 `case "unitypackage"` 旁新增 `case "xxx":`」
+
+---
+
 # 构建 / 安装 / 验证
 
 - **无测试 target，无 lint / formatter 配置** —— 没有 `xcodebuild test`；验证只有「构建成功 + 在 Finder 里按空格肉眼看」
@@ -61,11 +73,40 @@ macOS Quick Look 扩展，让 Finder 能预览以文本形式存储的 Unity 原
 
 ## tar 解析必须处理的情况（真实样本实测）
 
-- **pax 扩展头 `'x'` 是常态不是异常**：两个真实 .unitypackage 各有 483 / 489 条，必须读掉 payload 再读下一个 header。pax payload 里若出现 `path=` 键，它才是下一条目的真实名字
-- **AppleDouble `._*` 伴生文件**：占真实样本条目的一半，必须过滤
+样本：`testfiles/` 下 5 个可解析包 + 2 个异常包，覆盖三种来源（见文末「测试样本清单」）。**下面每条都标了它在哪些样本上成立** —— 别把 Mac 包的特性当成通用前提。
+
+- **条目名可能带 `./` 前缀，也可能不带** —— Mac 导出的两个包几乎全是 `./<guid>/asset`（实测 964 / 966 条带前缀，两个例外是根条目 `.` 和它自己的 AppleDouble `._.`），Windows 包与两个 Unity 官方 TMP 包则 **0 条**带前缀。解析器必须对两者归一化：不能假定前缀存在，也不能拿 `^\./` 当白名单
+- **pax 扩展头 `'x'` 是常态不是异常**：Mac 导出的两个真实 .unitypackage 各有 483 / 489 条，必须读掉 payload 再读下一个 header。pax payload 里若出现 `path=` 键，它才是下一条目的真实名字（本样本实测 `path=` 出现 0 次）
+  - ⚠️ **但不能假定它一定存在**：Windows 包与两个 TMP 包 pax 头数均为 **0**
+- **AppleDouble `._*` 伴生文件**：Mac 导出的两个真实样本里各占条目总数的一半（483/966、489/978），**与真实条目 1:1**，必须过滤。实测有三种形态：`./._<guid>`（130 个，配 guid 目录）、`./<guid>/._asset|._pathname|._asset.meta`（352 个，配目录内的文件）、根条目自己的 `._.`（1 个）
+  - Windows 包与两个 TMP 包为 **0 个** —— 过滤逻辑只对 Mac 系包生效，**不要拿它的存在与否判断"输入是否正常"**
+- **header magic 有两种，都不是错误格式**：
+  - POSIX ustar（`ustar\0` + version `00`）：两个 Mac 包、两个 TMP 包
+  - **GNU oldgnu（`ustar␠␠\0`）**：Windows 包实测，需正常解析
+- **typeflag 实测只出现 `'0'`（文件，835 条）与 `'5'`（目录，131 条）**，本批样本无 `'L'/'K'` 长名；但 `UnityPackageReader.swift` 对 GNU 长名**仍显式拒绝**，这是有意的防御，别删
+- **文件夹在 guid 目录里没有 `asset` 条目** —— 这是判「文件 / 文件夹」唯一可靠的信号：
+  - 实测 `real.unitypackage`：130 个 guid = 95 个有 `asset`（文件）+ 35 个没有（文件夹），零反例
+  - ⚠️ **别用 `asset.meta` 里的 `folderAsset: yes`**：35 个文件夹里只有 28 个写了这个键，单用会漏掉 7 个
+  - 无代码的交叉验证：`grep -cE '/asset$'` = 文件数（95），`grep -cE '/pathname$'` = 文件 + 文件夹（130），两者之差 = 文件夹数（35）
+  - 推论：**文件夹本身也有 `pathname` 条目**，而且字典序一定排在它的子文件之前 —— 建树时若用「有没有子节点」判断是不是目录，会给每个文件夹多造一个同名空节点（表现为「多出一行没有扩展名的文件，图标是问号」）
+- **数字字段实测全是 ASCII**，未出现 base-256；但保留「首字节高位为 1 即 base-256，检测并报错」的防御
 - checksum 校验是发现"走偏了"最便宜的手段
-- 数字字段首字节高位为 1 = GNU base-256 编码，要检测并报错；GNU 长名 `'L'/'K'` 要识别并明确拒绝
 - 归档结束 = 连续两个全零块
+
+## ⛔ 参照工具陷阱：macOS 的 `tar` 会静默隐藏 AppleDouble
+
+- **`/usr/bin/tar` 是 bsdtar（libarchive）**。macOS 上 `process_mac_extensions` 默认开启 → 归档里的 `._*` 条目被当作扩展属性（xattr）消费掉：**列目录看不到、解包也不落地、`archive_error_string` 为空**。不报错、不留痕
+  - 上游对成因的说明（不是我们推断的）：`is_mac_metadata_entry()` **只按 basename 匹配 `._foo`**，从不检查后面有没有对应实体条目 —— 见 libarchive/libarchive#3310；格式说明见 libarchive wiki `TarExtendedAttributes` 的 "Apple tar" 一节
+- 同一个 `real.unitypackage`，三种数法：
+
+  | 命令 | 条目数 |
+  | --- | ---: |
+  | `tar tzf \| wc -l` | 483 ← 少了全部 AppleDouble |
+  | `tar --options '!mac-ext' -tf …` | 966 ← 完整视图 |
+  | `python3 -c "…tarfile.getnames()"` | 966 |
+
+- **判据**：任何时候怀疑"归档里有没有 `._`"，**不能只听 bsdtar 的** —— 用 `tar --options '!mac-ext'` 或 Python `tarfile` 交叉验证
+- 实测环境：macOS 27 自带 `/usr/bin/tar`（bsdtar）；`--options '!mac-ext'` 这个开关在本机可用，**这正是它比 `tar tzf` 更适合当参照的原因**
 
 ## Unity 文件的 UTI（本机 macOS 27 实测）
 
@@ -135,7 +176,7 @@ PBXNativeTarget "Extension"
 ```
 [x] 支持 `.meta` 文件
 [x] 支持 `.unitypackage` 文件
-[ ] 美化一下界面
+[x] 美化一下界面
 [ ] 支持更多文件类型                              ← ⭐ 只改 Info.plist，零 Swift 改动，覆盖面 2 → 9 种
 [ ] 多语言                                        ← 基础设施都开着，但没有 .xcstrings
 [ ] 给这些资产整一个不错的图标
@@ -157,13 +198,43 @@ PBXNativeTarget "Extension"
 
 # 回归基准（tar/gzip 解析）
 
-- `Tools/tarprobe.swift`：纯用户态解 .unitypackage 的独立 spike，曾用两个真实样本（8.6 MB）与 `tar tzf` 做过全量比对。改动 `UnityPackageReader.swift` 时用它回归
-- 已实测的比对配方（样本：`~/Documents/WorkingFolder/OCESAudio-0831.unitypackage`）：
+- `Tools/tarprobe.swift`：纯用户态解 .unitypackage 的独立 spike，曾用真实样本与 `tar tzf` 做过全量比对。改动 `UnityPackageReader.swift` 时用它回归
+- 已实测的比对配方（样本：`testfiles/real.unitypackage`；该目录**尚未入库**，见文末「测试样本清单」）：
   ```
-  swift Tools/tarprobe.swift <pkg>              # 归一化条目，归档顺序；LC_ALL=C sort 后 == tar tzf 结果
+  # 参考基准：不能直接用 `tar tzf`（它会静默吞掉 ._* 条目，见「参照工具陷阱」一节）
+  #   sed 去 ./ 前缀与尾斜杠；grep 显式过滤 AppleDouble 与根条目，让"过滤"成为被测对象自己的行为
+  tar --options '!mac-ext' -tf <pkg> | sed 's|^\./||; s|/$||' | grep -vE '(^|/)\._' | grep -vE '^\.?$' | LC_ALL=C sort
+  swift Tools/tarprobe.swift <pkg>              # 归一化条目，归档顺序；LC_ALL=C sort 后 == 上面这条参考
   swift Tools/tarprobe.swift <pkg> --pathnames  # guid<TAB>pathname，直接逐字节 == 参考
   swift Tools/tarprobe.swift <pkg> --types      # typeflag 直方图
   ```
   stdout 专供 diff，统计信息走 stderr
-- 样本与金标准（`tar1/2.txt`、`out1/2.txt`、`refpn1/2.txt`、`stat1/2.txt`）都在仓库外，与本脚本原件同目录：`~/Documents/WorkingFolder/unitypackage-spike/`
+  - ✅ 已实测：`real`（482 行）、`windows`（331 行）、`TMP Essential Resources`（158 行）三个样本，上面这条参考与 tarprobe 输出 **diff 均为 0 行**
+- ⚠️ **基准的共模盲区（务必看）**：`tar tzf` 静默隐藏 `._*`，而 `TarScanner` 也过滤它们 —— 两边隐藏的是同一批名字，所以「如何处理 `._`」在这条基准上**看不出差异**；而且基准是否通过还取决于 bsdtar 的默认行为（macOS 上默认开），**换机器/换版本就会飘**
+  - 要独立校验过滤逻辑，就对「数」：参考侧给**完整**条目，与 tarprobe stderr 的计数对账。`real.unitypackage` 实测：
+    ```
+    tar --options '!mac-ext' -tf <pkg> | wc -l                 # 966  完整条目
+    tar --options '!mac-ext' -tf <pkg> | grep -cE '(^|/)\._'    # 483  AppleDouble
+    # 966 − 483 = 483 条真实条目；tarprobe 的「归一化后」= 482（483 再减掉根条目 `.`）
+    ```
+- **金标准文件已丢失**：`tar1/2.txt`、`out1/2.txt`、`refpn1/2.txt`、`stat1/2.txt` 原先与 spike 脚本同放在 `~/Documents/WorkingFolder/unitypackage-spike/`，那个目录现已不存在，本机也搜不到这些文件 —— 下次回归前请用上面的配方重新生成一份基线
 - 局限：测的是**平行实现**，会与 `UnityPackageReader.swift` 漂移。更彻底的做法是抽核心 + 加 test target 直接测真实代码（未做）
+
+## 测试样本清单（`testfiles/`）
+
+> ⚠️ **这批样本尚未入库**（版权原因）。计划是后续自己构建一套无版权问题的样本再放进来；在那之前 `testfiles/` 只是本机目录，clone 下来的人拿不到，本节所有数字都要靠它才能复现。
+
+| 样本 | 来源 | 条目 | `._` | pax 头 | 条目名 `./` 前缀 | magic |
+| --- | --- | ---: | ---: | ---: | :---: | --- |
+| `real.unitypackage` | macOS 导出 | 966 | 483 | 483 | 有 | POSIX ustar |
+| `OCESAudio-0908.unitypackage` | macOS 导出 | 978 | 489 | 489 | 有 | POSIX ustar |
+| `windows.unitypackage` | Windows 导出 | 331 | 0 | 0 | 无 | GNU oldgnu |
+| `TMP Essential Resources.unitypackage` | Unity 官方 | 158 | 0 | 0 | 无 | POSIX ustar |
+| `TMP Examples & Extras.unitypackage` | Unity 官方 | 547 | 0 | 0 | 无 | POSIX ustar |
+| `fake.unitypackage` | 实为 WAV 改名（RIFF） | — | — | — | — | 非 tar.gz |
+| `empty.unitypackage` | 0 字节空文件 | — | — | — | — | 空 |
+
+- 条目数按 `python3 tarfile.getnames()` / `tar --options '!mac-ext'` 计 —— **不是**默认 `tar tzf`（后者少 483 条，见「参照工具陷阱」）
+- `real` 与 `windows` 是**同一工程的两次导出**（87 vs 130 个资产，83 个 GUID 重合），但路径已重组（Windows 版多一层 `Sound/`）→ 适合做"同工程跨平台"对照
+- `real` 与 `OCESAudio-0908`（130 / 132 个 guid，各 95 个 `asset`）结构相近，适合交叉验证解析器
+- `.DS_Store`：两个 Mac 包各有 1 个，藏在 `pathname` **内容**里（`Assets/Plugins/Lofelt/iOS/LofeltHaptics.framework/.DS_Store`）；条目名里看不到，只能在 `pathname` 里查
