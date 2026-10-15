@@ -1,0 +1,7 @@
+/*  UnityAssetsQuickLook — UTI 描述中文化
+    key = Extension/Info.plist 里 UTTypeDescription 的原值（逐字节相同） */
+
+"Unity meta file"       = "Unity 元数据文件";
+"Unity package"         = "Unity 包";
+"Unity scene file"      = "Unity 场景文件";
+"Unity serialized asset" = "Unity 序列化资产";

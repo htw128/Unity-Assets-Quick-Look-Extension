@@ -10,7 +10,8 @@
 			<false/>
 			<key>QLSupportedContentTypes</key>
 			<array>
-				<string>com.unity3d.unity</string>
+				<string>com.unity3d.asset</string>
+				<string>com.unity3d.unity-scene</string>
 				<string>com.unity3d.meta</string>
 				<string>com.unity3d.package</string>
 			</array>
@@ -26,13 +27,30 @@
 	<array>
 		<dict>
 			<key>UTTypeDescription</key>
-			<string>Unity Scene File</string>
+			<string>Unity serialized asset</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.data</string>
 			</array>
 			<key>UTTypeIdentifier</key>
-			<string>com.unity3d.unity</string>
+			<string>com.unity3d.asset</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>asset</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeDescription</key>
+			<string>Unity scene file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.unity3d.unity-scene</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -45,7 +63,7 @@
 			<key>UTTypeIdentifier</key>
 			<string>com.unity3d.meta</string>
 			<key>UTTypeDescription</key>
-			<string>Unity Meta File</string>
+			<string>Unity meta file</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.data</string>
@@ -62,7 +80,7 @@
 			<key>UTTypeIdentifier</key>
 			<string>com.unity3d.package</string>
 			<key>UTTypeDescription</key>
-			<string>Unity Package</string>
+			<string>Unity package</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.data</string>
