@@ -28,7 +28,11 @@ macOS Quick Look 扩展，让 Finder 能预览以文本形式存储的 Unity 原
     -configuration Release -derivedDataPath /tmp/uaql-dd build
   ```
   - 唯一 scheme 是 `Extension`，但会连带构建宿主 App；产物 `<dd>/Build/Products/Release/UnityAssetsQuickLook.app`，扩展在其 `Contents/PlugIns/Extension.appex`
-- 换机器 / 换 Apple ID 会签名失败：pbxproj 里**硬编码了 `DEVELOPMENT_TEAM = B3GRCQDM82`**。只验证能否编译时加 `CODE_SIGNING_ALLOWED=NO`（实测可过）
+- 签名走 `Config/Signing.xcconfig`（入库，`DEVELOPMENT_TEAM` 留空）+ `Config/Signing.local.xcconfig`（已在 `.gitignore`，本机填 team id）。pbxproj 里**已无** `DEVELOPMENT_TEAM` / `CODE_SIGN_IDENTITY` 硬编码
+  - 实测：本地文件不存在时 `DEVELOPMENT_TEAM` 为空 → Xcode **自动降级为 ad-hoc 签名**（`Signature=adhoc` / `TeamIdentifier=not set`），构建**照样成功**，并不会报 "requires a development team"（macOS target 特有行为）
+  - ⚠️ xcconfig 的 `#include?` 路径**相对于发起 include 的那个 xcconfig 所在目录**，不是工程根目录（实测确认）
+  - ⚠️ xcconfig 只是 base configuration，**pbxproj 里的 target / project 级设置会覆盖它** —— 所以这两个键必须从 pbxproj 里删干净，只留在 xcconfig 里才生效
+  - 只验证能否编译时加 `CODE_SIGNING_ALLOWED=NO`（实测可过）
 - 让扩展在 Finder 生效：`pluginkit -e use -i com.oces.UnityAssetsQuickLook.Extension`（或启动一次宿主 App），再 `qlmanage -r && qlmanage -r cache`
 - `qlmanage -p <file>` 只能确认「扩展被调用」，窗口是**离屏**的；看真实效果必须在 Finder 里选中文件按空格
 
@@ -40,7 +44,7 @@ macOS Quick Look 扩展，让 Finder 能预览以文本形式存储的 Unity 原
 - 两条实现路线：① 视图式：`NSExtensionPrincipalClass` 指向 `QLPreviewingController` 子类，可配 xib ② 数据式：`QLPreviewProvider.providePreview(for:) -> QLPreviewReply`，需 `QLIsDataBasedPreview = true`
 - 生效流程：装入后 `pluginkit -a <appex>`（或启动一次宿主 App）+ `pluginkit -e use -i <bundleid>`，再 `qlmanage -r && qlmanage -r cache`
 - 扩展跑在**沙盒**里，**只能读被预览的那一个文件**（QL 会先把文件复制进扩展沙盒的临时目录）
-- **LaunchServices 只按扩展名判定 UTI，不嗅探内容** —— 把一个 WAV 改名成 `.unitypackage`，`mdls` 仍然报 `com.unity3d.package`，扩展照常被调用（可用来构造错误场景做测试）
+- **LaunchServices 只按扩展名判定 UTI，不嗅探内容** —— 把一个 WAV 改名成 `.unitypackage`，扩展照常被调用（可用来构造错误场景做测试）。⚠️ 查它的 UTI 别只看 `mdls`：`com.unity.*` 是本项目自己声明的，而 `mdls` 读的是 Spotlight 缓存、会滞后
 
 ## ⛔ 扩展抛错时，`errorDescription` 用户看不到（实测确认）
 
@@ -110,11 +114,28 @@ macOS Quick Look 扩展，让 Finder 能预览以文本形式存储的 Unity 原
 
 ## Unity 文件的 UTI（本机 macOS 27 实测）
 
+34 种扩展名的 UTI 全部由本项目自己声明**，源码即 `Extension/Info.plist`，命名规则 `com.unity.<扩展名>`，一律 `conform to public.data`
+
+- 实现上**统一放在 `UTImportedTypeDeclarations`**（本项目的有意选择）。按 Apple 语义，`dyn.*` 这类无主类型本应走 `UTExportedTypeDeclarations`，但实测 `UTImportedTypeDeclarations` 一样能正常注册并被 `UTType(filenameExtension:)` 解析到，所以没混用
+- 装上本扩展后，`.mat` / `.prefab` / `.anim` / `.controller` / `.mixer` 等**不再显示 `dyn.*`**，而解析到 `com.unity.<扩展名>`
+
 | 扩展名 | 当前 UTI | 说明 |
 | --- | --- | --- |
-| `.meta` | `com.unity3d.meta` | **Unity 官方已声明**，接管须用 `UTImportedTypeDeclarations` |
-| `.unitypackage` | `com.unity3d.package` | ⚠️ **tag 是 `unitypackage` 不是 `package`** |
-| `.asset` / `.prefab` / `.unity` / `.mat` / `.anim` / `.controller` / `.mixer` | `dyn.*` | **全无主**，要接管须自己 `UTExportedTypeDeclarations` 导出 |
+| 34 种（见 README「已支持的资产类型」） | `com.unity.<扩展名>` | 全部由 `Extension/Info.plist` 声明，`conform to public.data` |
+| `.unity` | `com.unity.unity-scene` | ⚠️ 例外：不叫 `com.unity.unity` |
+| 任何本项目未声明的扩展名 | `dyn.*` | `dyn.*` = 系统临时 UTI，**无主** |
+
+- ⚠️ **UTI 标识符会被 LaunchServices 统一小写注册**（实测）：plist 里写 `UTTypeIdentifier = "com.unity.physicMaterial"`，`lsregister -dump` 里注册出来的是 `type id: com.unity.physicmaterial`
+  - `UTType("com.unity.physicMaterial").identifier` 也返回小写；`UTType(a) == UTType(b)` **大小写不敏感**，但 `resolved.identifier == "com.unity.physicMaterial"` 这种**裸字符串比较是敏感的**
+  - 因此 **`QLSupportedContentTypes` 里的标识符一律写小写**：扩展名含大写字母的 `.overrideController` / `.physicMaterial` / `.physicsMaterial2D` / `.renderTexture` / `.spriteLib` 必须写成 `com.unity.overridecontroller` / `com.unity.physicmaterial` / `com.unity.physicsmaterial2d` / `com.unity.rendertexture` / `com.unity.spritelib`
+  - ⚠️ 只有 **UTI 标识符**归一化；`public.filename-extension` 那个 tag 仍写原始大小写（`physicMaterial`）
+  - 验证配方：写个临时 Swift 脚本（**别放进 `Extension/`**）跑 `UTType(filenameExtension: "<ext>")?.identifier`，返回值应与 plist 里的字符串**逐字节相同**
+- **`UTTypeDescription` 与 `.strings` 的 key 必须逐字节相同**（本地化才生效）。改 `UTTypeDescription` 就等于改 key，三份 `InfoPlist.strings` 要同步改，否则 UI 会退回英文原名
+
+- ⚠️ **改了 `UTTypeIdentifier` 后，旧标识符的声明会残留在 LaunchServices 里**（实测）：`.unitypackage` 从 `com.unity.package` 改成 `com.unity.unitypackage` 后，`UTType(filenameExtension: "unitypackage")` 仍返回 `com.unity.package` —— 库里按 **bundle 路径**缓存记录，**改了 plist 重新构建不会自动重读**
+  - 刷新配方：`lsregister -f <宿主 App 的 .app 或 .appex 路径>`（`lsregister` 在 `/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/`）。实测刷新后 `.unitypackage` 立刻变成 `com.unity.unitypackage`
+  - 查残留是谁声明的：`lsregister -dump` 里 `type id: com.unity.<旧名>` 记录上方的 **`plugin:` 行**就是它归属的实例（本项目实测残留来自 `~/Library/Developer/Xcode/DerivedData/.../Debug/...appex` 那个旧构建）
+  - 推论：**两个类型同时认领同一个 tag（如 `unitypackage`）时**，只要旧记录还在，`UTType` 就可能仍解析到旧标识符，而 `QLSupportedContentTypes` 里已换成新标识符 → 表现为"扩展收不到这个文件"的假故障。**改标识符后务必重装 + 用 `UTType(filenameExtension:)` 核对一遍**
 
 ---
 
@@ -177,7 +198,7 @@ PBXNativeTarget "Extension"
 [x] 支持 `.meta` 文件
 [x] 支持 `.unitypackage` 文件
 [x] 美化一下界面
-[ ] 支持更多文件类型                              ← ⭐ 只改 Info.plist，零 Swift 改动，覆盖面 2 → 9 种
+[x] 支持更多文件类型                              ← ⭐ 只改 Info.plist，零 Swift 改动，覆盖面 2 → 9 种
 [ ] 多语言                                        ← 基础设施都开着，但没有 .xcstrings
 [ ] 给这些资产整一个不错的图标
 [ ] 让别人 clone 下来后无需调整签名配置即可直接构建
@@ -188,11 +209,6 @@ PBXNativeTarget "Extension"
 - README 只有几行，缺安装/构建说明和截图
 - 包里每个资产的 `preview.png` 目前丢弃，未来可解出来做缩略图
 - Release 功能验证未做（Release 静态符号检查已通过）
-
-## 小瑕疵（已知晓，未处理）
-
-- `YAMLPreviewProvider.makeBinaryNoticeView` 改成多行字符串后，正文里「不支持文本预览。」后的**空行丢了**（原为 `\n\n`，现为单个换行）
-- `PreviewNoticeView.swift` 的文件头注释写的是 `//  UnityAssetsQuickLook`，同一目录其它文件都是 `//  Extension`
 
 ---
 
