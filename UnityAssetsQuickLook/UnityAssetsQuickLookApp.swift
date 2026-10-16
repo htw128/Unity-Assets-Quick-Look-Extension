@@ -10,8 +10,11 @@ import SwiftUI
 @main
 struct UnityAssetsQuickLookApp: App {
     var body: some Scene {
-        WindowGroup {
+        Window("Unity Assets Quick Look", id: "main") {
             ContentView()
+                .frame(width: 270, height: 150)
         }
+        .windowResizability(.contentSize)
+        .defaultPosition(.center)
     }
 }
