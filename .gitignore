@@ -6,6 +6,9 @@ Icon
 
 # Xcode —— 用户级状态，属于个人环境，不该进仓库
 xcuserdata/
+
+# 本机签名配置（DEVELOPMENT_TEAM 等），入库的只有 Config/Signing.xcconfig
+Config/Signing.local.xcconfig
 *.xcuserstate
 *.xcscmblueprint
 *.xccheckout

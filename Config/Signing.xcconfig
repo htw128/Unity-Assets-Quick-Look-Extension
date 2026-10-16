@@ -1,0 +1,20 @@
+//  ── 签名配置（本文件入库） ────────────────────────────────────────
+//
+//  DEVELOPMENT_TEAM 故意留空。
+//
+//  原因：team id 是「个人 Apple Developer 账号」的属性，一旦写进
+//  project.pbxproj，别人 clone 下来构建就会直接失败
+//  （No signing certificate / team not found）。
+//  留空后，Xcode 会提示 "Select a development team"，选自己的即可。
+//
+//  本机维护者（或想让构建一次通过的贡献者）把 team id 写进：
+//      Config/Signing.local.xcconfig
+//  该文件已加入 .gitignore，不会污染仓库。
+//
+//  ────────────────────────────────────────────────────────────────
+
+DEVELOPMENT_TEAM =
+
+//  本地覆盖。`?` 表示文件不存在时静默跳过，而不是报错。
+//  ⚠️ 必须放在本文件最后：xcconfig 按出现顺序求值，后写的生效。
+#include? "Signing.local.xcconfig"
