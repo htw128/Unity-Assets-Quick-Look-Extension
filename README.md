@@ -187,3 +187,7 @@ DEVELOPMENT_TEAM = ABCDE12345
 macOS、Xcode、Finder 是 Apple Inc. 或在美国及其他地区的注册商标。
 
 本项目中提及的所有其他商标、服务标志和商号均为其各自所有者的财产。
+
+---
+
+Build with help from [Deepseek](https://github.com/deepseek-ai) in [Opencode Desktop](https://github.com/anomalyco/opencode/) 🤖 🤝 🕴️
