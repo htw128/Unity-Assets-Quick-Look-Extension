@@ -87,6 +87,7 @@ struct YAMLPreviewProvider {
                            title: "无法预览此文件",
                            body: """
                            \(fileName) 使用 Unity Binary 格式存储，不支持文本预览。
+                           
                            如需查看内容，请在 Unity Editor 中打开项目，
                            或在 Project Settings → Editor → Asset Serialization
                            中将模式改为 Force Text。
