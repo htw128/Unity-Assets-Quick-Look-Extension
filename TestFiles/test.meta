@@ -1,0 +1,9 @@
+m_Name: TestAsset
+"a:b": 1
+url: https://example.com/x?y=1
+bare: http://example.org
+nums: [1, 0x10, .5, 1e5]
+s: "say \" # not-comment"
+icon: {fileID: 2800000, guid: abcdef}
+guid: 1000000003000000000000000e603000
+- item

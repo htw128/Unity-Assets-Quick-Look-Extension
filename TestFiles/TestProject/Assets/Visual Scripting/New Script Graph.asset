@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95e66c6366d904e98bc83428217d4fd7, type: 3}
+  m_Name: New Script Graph
+  m_EditorClassIdentifier: Unity.VisualScripting.Flow::Unity.VisualScripting.ScriptGraphAsset
+  _data:
+    _json: '{"graph":{"variables":{"Kind":"Flow","collection":{"$content":[],"$version":"A"},"$version":"A"},"controlInputDefinitions":[{"key":"a","label":null,"summary":null,"hideLabel":false}],"controlOutputDefinitions":[],"valueInputDefinitions":[],"valueOutputDefinitions":[],"title":"Demo","summary":"A
+      demo script graph","pan":{"x":0.0,"y":0.0},"zoom":1.0,"elements":[{"chainable":false,"member":{"name":"onClick","parameterTypes":null,"targetType":"UnityEngine.UI.Button","targetTypeName":"UnityEngine.UI.Button","$version":"A"},"defaultValues":{"target":null},"position":{"x":-177.0,"y":-143.0},"guid":"5d9918eb-899d-4355-9bc4-9e32e36714b5","$version":"A","$type":"Unity.VisualScripting.SetMember","$id":"10"},{"argumentCount":0,"defaultValues":{"name":{"$content":"","$type":"System.String"},"target":null},"position":{"x":32.0,"y":-161.0},"guid":"62ea4aa6-1d2d-452b-83d1-9ff5630ef0c1","$version":"A","$type":"Unity.VisualScripting.TriggerCustomEvent","$id":"13"},{"sourceUnit":{"$ref":"10"},"sourceKey":"assigned","destinationUnit":{"$ref":"13"},"destinationKey":"enter","guid":"7697004e-74fb-4d6b-9549-9da11d31cf13","$type":"Unity.VisualScripting.ControlConnection"}],"$version":"A"}}'
+    _objectReferences: []

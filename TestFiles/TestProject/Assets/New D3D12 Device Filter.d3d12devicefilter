@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1798438448 &8057108648114842400
+D3D12DeviceFilterLists:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: New D3D12 Device Filter
+  serializedVersion: 1
+  m_AllowFilterList:
+  - vendorName: 
+    deviceName: 
+    driverVersionComparator: 3
+    driverVersion: 
+    featureLevelComparator: 5
+    featureLevel: 12.2
+    graphicsMemoryComparator: 3
+    graphicsMemory: 
+    processorCountComparator: 3
+    processorCount: 
+    deviceType: 2
+  m_DenyFilterList:
+  - vendorName: 
+    deviceName: 
+    driverVersionComparator: 3
+    driverVersion: 
+    featureLevelComparator: 2
+    featureLevel: 12.1
+    graphicsMemoryComparator: 3
+    graphicsMemory: 
+    processorCountComparator: 3
+    processorCount: 
+    deviceType: 0
+  - vendorName: 
+    deviceName: 
+    driverVersionComparator: 3
+    driverVersion: 
+    featureLevelComparator: 3
+    featureLevel: 
+    graphicsMemoryComparator: 3
+    graphicsMemory: 
+    processorCountComparator: 3
+    processorCount: 4
+    deviceType: 0
+  - vendorName: 
+    deviceName: 
+    driverVersionComparator: 3
+    driverVersion: 
+    featureLevelComparator: 3
+    featureLevel: 
+    graphicsMemoryComparator: 2
+    graphicsMemory: 3600
+    processorCountComparator: 3
+    processorCount: 
+    deviceType: 0
+  - vendorName: Intel
+    deviceName: 
+    driverVersionComparator: 3
+    driverVersion: 
+    featureLevelComparator: 3
+    featureLevel: 
+    graphicsMemoryComparator: 3
+    graphicsMemory: 
+    processorCountComparator: 3
+    processorCount: 
+    deviceType: 2
+  - vendorName: ATI
+    deviceName: 
+    driverVersionComparator: 3
+    driverVersion: 
+    featureLevelComparator: 3
+    featureLevel: 
+    graphicsMemoryComparator: 3
+    graphicsMemory: 
+    processorCountComparator: 3
+    processorCount: 
+    deviceType: 2
+  m_GraphicsJobsFilterList: []
