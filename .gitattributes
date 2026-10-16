@@ -1,2 +1,2 @@
-TestFiles/* linguist-vendored=false
-Tools/* linguist-vendored=false
+TestFiles/** linguist-detectable=false
+Tools/** linguist-detectable=false
